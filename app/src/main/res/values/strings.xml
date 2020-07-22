@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">KINOINTERNSHIP</string>
+    <string name="main_fragment_title">Films:</string>
+    <string name="film_title">Title for the film</string>
+    <string name="film_year">Year of the film </string>
+    <string name="hello_blank_fragment">JELLO!!!</string>
+    <string name="base_url">http://www.omdbapi.com/</string>
+    <string name="duration_title">Duration </string>
+    <string name="genres_title">Genres </string>
+    <string name="actors_title">Actors </string>
+    <string name="year_title">Year </string>
+    <string name="description_button_text">Show short description</string>
+    <string name="film_description_title">Description</string>
+</resources>

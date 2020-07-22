@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="colorPrimary">#071418</color>
+    <color name="colorPrimaryDark">#071418</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="colorAnthracite">#293133</color>
+    <color name="colorBlueYear">#086A87</color>
+    <color name="colorMainBack">#191919</color>
+    <color name="black">#000000</color>
+    <color name="colorTextBlue">#9CB9C2FA</color>
+    <color name="pinkButtonsText">#EC5A6B</color>
+</resources>
