@@ -7,28 +7,32 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.hritsay.internsiphproject.models.FilmItem;
-import com.hritsay.internsiphproject.models.SearchModel;
+
 
 public class FilmDetailsViewModel extends ViewModel {
     private MutableLiveData<FilmItem> mutableLiveData;
-    private FilmsRepository filmsRepository;
-    private final String TAG = "FILM_ITEM_VIEW_MODEL";
+
+    private final String TAG = getClass().getCanonicalName();
+    private MutableLiveData<Throwable>  throwableMutableLiveData;
 
     public void init(String imdbId) {
         Log.i(TAG, "init()");
         if (mutableLiveData != null) {
             return;
         }
-        filmsRepository = FilmsRepository.getInstance();
+        FilmsRepository filmsRepository = FilmsRepository.getInstance();
         mutableLiveData = new MutableLiveData<>();
-        FilmsListener listener = new FilmsListener() {
-            @Override
-            public void onFilmListLoaded(SearchModel searchModel) {}
-
+        throwableMutableLiveData = new MutableLiveData<>();
+        FilmDetailsListener listener = new FilmDetailsListener() {
             @Override
             public void onFilmLoaded(FilmItem filmItem) {
-                Log.i(TAG, "onDataLoaded in anon started");
+                Log.d(TAG, "onDataLoaded in anon started");
                 mutableLiveData.setValue(filmItem);
+            }
+
+            @Override
+            public void onFilmLoadedFail(Throwable t) {
+               throwableMutableLiveData.setValue(t);
             }
         };
         filmsRepository.loadFilmByImdbId(listener, imdbId);
@@ -36,5 +40,9 @@ public class FilmDetailsViewModel extends ViewModel {
 
     public LiveData<FilmItem> getFilmLiveData() {
         return mutableLiveData;
+    }
+
+    public MutableLiveData<Throwable> getThrowableMutableLiveData() {
+        return throwableMutableLiveData;
     }
 }

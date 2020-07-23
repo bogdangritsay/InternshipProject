@@ -11,9 +11,9 @@ import retrofit2.Response;
 
 
 public class FilmsRepository {
-    private final String TAG = "FILMS REPOSITORY";
+    private final String TAG = getClass().getCanonicalName();
     private static FilmsRepository filmsRepository;
-    private FilmsListener listener;
+
 
     public static FilmsRepository getInstance(){
         if (filmsRepository == null) {
@@ -37,34 +37,38 @@ public class FilmsRepository {
                 if (response.isSuccessful()){
                     Log.i(TAG, "RESPONSE BODY" + response.toString());
                     filmsListener.onFilmListLoaded(response.body());
+                } else {
+                    filmsListener.onFilmListLoadFail(new Throwable());
                 }
             }
 
             @Override
             public void onFailure(Call<SearchModel> call, Throwable t) {
                 Log.e("QUERY TO API", "Failure response to API or error in query\n" + t.getMessage());
+                filmsListener.onFilmListLoadFail(t);
             }
         });
     }
 
-    public void loadFilmByImdbId(FilmsListener filmsListener, String imdbId) {
+    public void loadFilmByImdbId(FilmDetailsListener filmDetailsListener, String imdbId) {
         Log.d(TAG, "New request to API for film by imdbId");
         filmServiceAPI.getLongFilmDescription(imdbId).enqueue(new Callback<FilmItem>() {
             @Override
             public void onResponse(Call<FilmItem> call, Response<FilmItem> response) {
                 if (response.isSuccessful()){
                     Log.i(TAG, "RESPONSE BODY" + response.toString());
-                    filmsListener.onFilmLoaded(response.body());
+                    filmDetailsListener.onFilmLoaded(response.body());
+                } else {
+                    filmDetailsListener.onFilmLoadedFail(new Throwable());
                 }
             }
 
             @Override
             public void onFailure(Call<FilmItem> call, Throwable t) {
                 Log.e("QUERY TO API", "Failure response to API or error in query\n" + t.getMessage());
+                filmDetailsListener.onFilmLoadedFail(t);
+
             }
         });
     }
-
-
-
 }

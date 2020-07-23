@@ -5,45 +5,35 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hritsay.internsiphproject.FilmDetailsViewModel;
-import com.hritsay.internsiphproject.FilmListViewModel;
-import com.hritsay.internsiphproject.FilmServiceAPI;
 import com.hritsay.internsiphproject.R;
 import com.hritsay.internsiphproject.databinding.FragmentDetailsBinding;
-import com.hritsay.internsiphproject.databinding.FragmentMainBinding;
 import com.hritsay.internsiphproject.models.FilmItem;
-
-import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class DetailsFragment extends Fragment {
+    private final String IMDB_ID_KEY = "imdbId";
     private String imdbId;
     private FilmItem filmItem = new FilmItem();
     private FragmentDetailsBinding fragmentDetailsBinding;
-    private FilmDetailsViewModel filmDetailsViewModel;
-    private final String TAG = "DETAILS_FRAGMENT";
+    private final String TAG = getClass().getCanonicalName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("DETAILS FRAGMENT", "Second details fragment was been successfully created");
-        imdbId = getArguments().getString("imdbId");
+        Log.i(TAG, "Second details fragment was been successfully created");
+        imdbId = getArguments().getString(IMDB_ID_KEY);
     }
 
     @Override
@@ -68,13 +58,12 @@ public class DetailsFragment extends Fragment {
     }
 
     private void initItem(String imdbId) {
-        filmDetailsViewModel = ViewModelProviders.of(this).get(FilmDetailsViewModel.class);
+        FilmDetailsViewModel filmDetailsViewModel = new ViewModelProvider(this).get(FilmDetailsViewModel.class);
         filmDetailsViewModel.init(imdbId);
         filmDetailsViewModel.getFilmLiveData().observe(getViewLifecycleOwner(), filmResponse -> {
             Log.i(TAG, "Observer running");
-            FilmItem filmItemTmp = filmResponse;
-            if(filmItemTmp != null) {
-                filmItem = filmItemTmp;
+            if(filmResponse != null) {
+                filmItem = filmResponse;
                 fragmentDetailsBinding.filmTitle.setText(filmItem.getTitle());
                 fragmentDetailsBinding.actors.setText(filmItem.getActors());
                 fragmentDetailsBinding.duration.setText(filmItem.getDuration());
@@ -90,10 +79,10 @@ public class DetailsFragment extends Fragment {
         });
 
 
-
-
-
-
+        filmDetailsViewModel.getThrowableMutableLiveData().observe(getViewLifecycleOwner(), throwable -> {
+            Toast toast = Toast.makeText(getContext(), "Error! Message: " + throwable.getMessage(), Toast.LENGTH_LONG);
+            toast.show();
+        });
     }
 
 }

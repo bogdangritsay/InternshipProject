@@ -14,12 +14,14 @@ import com.hritsay.internsiphproject.databinding.FragmentDetailsBinding;
 
 
 public class DescriptionFragment extends Fragment {
+    private final String DESCRIPT_KEY = "filmDescription";
     private FragmentDescriptionBinding fragmentDescriptionBinding;
     private String description;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        description = getArguments().getString("filmDescription");
+        description = getArguments().getString(DESCRIPT_KEY);
     }
 
     @Override

@@ -6,21 +6,23 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.hritsay.internsiphproject.models.FilmItem;
 import com.hritsay.internsiphproject.models.SearchModel;
+
+
 
 public class FilmListViewModel extends ViewModel {
     private MutableLiveData<SearchModel> mutableLiveData;
-    private FilmsRepository filmsRepository;
-    private final String TAG = "FILM_LIST_VIEW_MODEL";
+    private final String TAG = getClass().getCanonicalName();
+    private MutableLiveData<Throwable>  throwableMutableLiveData;
 
     public void init() {
         Log.i(TAG, "init()");
         if (mutableLiveData != null) {
             return;
         }
-        filmsRepository = FilmsRepository.getInstance();
+        FilmsRepository filmsRepository = FilmsRepository.getInstance();
         mutableLiveData = new MutableLiveData<>();
+        throwableMutableLiveData = new MutableLiveData<>();
         FilmsListener listener = new FilmsListener() {
             @Override
             public void onFilmListLoaded(SearchModel searchModel) {
@@ -29,8 +31,8 @@ public class FilmListViewModel extends ViewModel {
             }
 
             @Override
-            public void onFilmLoaded(FilmItem filmItem) {
-
+            public void onFilmListLoadFail(Throwable t) {
+                throwableMutableLiveData.setValue(t);
             }
         };
         filmsRepository.loadFilms(listener);
@@ -40,4 +42,7 @@ public class FilmListViewModel extends ViewModel {
         return mutableLiveData;
     }
 
+    public MutableLiveData<Throwable> getThrowableMutableLiveData() {
+        return throwableMutableLiveData;
+    }
 }

@@ -32,9 +32,6 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
             this.imdbID = imdbID;
         }
 
-        //TODO bind
-
-
         @Override
         public void onClick(View v) {
             Bundle bundle = new Bundle();
@@ -66,17 +63,21 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
 
     @Override
     public void onBindViewHolder(@NonNull final FilmListAdapter.FilmViewHolder holder, final int position) {
-        holder.setImdbID(mFilmList.get(position).getImdbId());
+        FilmItem filmItem = bindHolder(position);
+        holder.setImdbID(filmItem.getImdbId());
         Glide.with(context)
-                .load(mFilmList.get(position).getUrl())
+                .load(filmItem.getUrl())
                 .placeholder(R.drawable.film_placeholder_background)
                 .error(R.drawable.ic_baseline_error_outline_24)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(holder.filmItemBinding.filmImage);
+        holder.filmItemBinding.filmTitle.setText(filmItem.getTitle());
+        holder.filmItemBinding.filmYear.setText(filmItem.getYear());
 
-        holder.filmItemBinding.filmTitle.setText(mFilmList.get(position).getTitle());
-        holder.filmItemBinding.filmYear.setText(mFilmList.get(position).getYear());
+    }
 
+    private FilmItem bindHolder(final int position) {
+        return mFilmList.get(position);
     }
 
 
