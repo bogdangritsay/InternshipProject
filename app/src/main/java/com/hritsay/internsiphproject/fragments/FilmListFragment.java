@@ -1,5 +1,6 @@
 package com.hritsay.internsiphproject.fragments;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.hritsay.internsiphproject.FilmListViewModel;
+import com.hritsay.internsiphproject.databinding.FragmentDetailsBinding;
 import com.hritsay.internsiphproject.models.FilmItem;
 import com.hritsay.internsiphproject.FilmListAdapter;
 import com.hritsay.internsiphproject.databinding.FragmentMainBinding;
@@ -65,6 +67,7 @@ public class FilmListFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView");
         initRecyclerView();
+        DetailsFragment.resetPosition();
         return fragmentMainBinding.getRoot();
     }
 

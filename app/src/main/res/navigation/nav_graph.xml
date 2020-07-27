@@ -26,5 +26,12 @@
         <action
             android:id="@+id/action_detailsFragment_to_descriptionFragment"
             app:destination="@id/descriptionFragment" />
+        <action
+            android:id="@+id/action_detailsFragment_to_playerFragment"
+            app:destination="@id/playerFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/playerFragment"
+        android:name="com.hritsay.internsiphproject.fragments.PlayerFragment"
+        android:label="PlayerFragment" />
 </navigation>
