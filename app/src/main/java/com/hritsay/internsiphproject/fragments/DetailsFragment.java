@@ -30,6 +30,8 @@ import com.hritsay.internsiphproject.models.FilmItem;
 
 public class DetailsFragment extends Fragment {
     private boolean imageVisibility;
+    private final String VISIBILITY_TAG = "IMAGE_VISIBILITY";
+    private final String PLAYBACK_TAG = "PLAYBACK_POSITION";
     private final String IMDB_ID_KEY = "imdbId";
     private String imdbId;
     private FilmItem filmItem = new FilmItem();
@@ -53,7 +55,7 @@ public class DetailsFragment extends Fragment {
         exoPlayerUtil = ExoPlayerUtil.getInstance();
         exoPlayerUtil.setPlayerView(playerView);
         if (savedInstanceState != null) {
-            imageVisibility = savedInstanceState.getBoolean("IMAGE_VISIBILITY");
+            imageVisibility = savedInstanceState.getBoolean(VISIBILITY_TAG);
         } else {
             imageVisibility= true;
         }
@@ -115,7 +117,7 @@ public class DetailsFragment extends Fragment {
             });
 
             if(savedInstanceState != null) {
-                long position = savedInstanceState.getLong("PLAYBACK_POSITION");
+                long position = savedInstanceState.getLong(PLAYBACK_TAG);
                 exoPlayerUtil.setPlaybackPosition(position);
                 Log.e(TAG, Long.valueOf(position).toString());
             }
@@ -181,8 +183,8 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong("PLAYBACK_POSITION", exoPlayerUtil.getPlaybackPosition());
-        outState.putBoolean("IMAGE_VISIBILITY", imageVisibility);
+        outState.putLong(PLAYBACK_TAG, exoPlayerUtil.getPlaybackPosition());
+        outState.putBoolean(VISIBILITY_TAG, imageVisibility);
     }
 
     @Override
@@ -190,8 +192,8 @@ public class DetailsFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null) {
             if(ExoPlayerUtil.getPlayer() != null) {
-                exoPlayerUtil.setPlaybackPosition(savedInstanceState.getLong("PLAYBACK_POSITION"));
-                if (savedInstanceState.getLong("PLAYBACK_POSITION") == 0) {
+                exoPlayerUtil.setPlaybackPosition(savedInstanceState.getLong(PLAYBACK_TAG));
+                if (savedInstanceState.getLong(PLAYBACK_TAG) == 0) {
                     imageVisibility = true;
                 }
             }
