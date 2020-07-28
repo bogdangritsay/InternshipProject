@@ -37,6 +37,7 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
             Bundle bundle = new Bundle();
             bundle.putString("imdbId", imdbID);
             Navigation.findNavController(v).navigate(R.id.action_mainFragment_to_detailsFragment, bundle);
+
         }
 
         public FilmViewHolder(FilmItemBinding itemBinding) {

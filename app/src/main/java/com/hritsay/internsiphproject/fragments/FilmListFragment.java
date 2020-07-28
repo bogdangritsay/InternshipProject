@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.hritsay.internsiphproject.ExoPlayerUtil;
 import com.hritsay.internsiphproject.FilmListViewModel;
 import com.hritsay.internsiphproject.databinding.FragmentDetailsBinding;
 import com.hritsay.internsiphproject.models.FilmItem;
@@ -65,9 +66,9 @@ public class FilmListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        ExoPlayerUtil.getInstance().reset();
         Log.i(TAG, "onCreateView");
         initRecyclerView();
-        DetailsFragment.resetPosition();
         return fragmentMainBinding.getRoot();
     }
 

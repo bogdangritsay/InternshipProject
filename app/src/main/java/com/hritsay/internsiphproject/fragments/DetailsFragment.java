@@ -1,8 +1,6 @@
 package com.hritsay.internsiphproject.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,13 +18,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
+import com.hritsay.internsiphproject.ExoPlayerUtil;
 import com.hritsay.internsiphproject.FilmDetailsViewModel;
 import com.hritsay.internsiphproject.MainActivity;
 import com.hritsay.internsiphproject.R;
@@ -35,8 +29,7 @@ import com.hritsay.internsiphproject.models.FilmItem;
 
 
 public class DetailsFragment extends Fragment {
-    private static boolean showImage;
-    private static int count = 0;
+    private boolean imageVisibility;
     private final String IMDB_ID_KEY = "imdbId";
     private String imdbId;
     private FilmItem filmItem = new FilmItem();
@@ -47,14 +40,8 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "Second details fragment was been successfully created");
+        Log.e(TAG, "Second details fragment was been successfully created");
         imdbId = getArguments().getString(IMDB_ID_KEY);
-        if (count == 0) {
-            count = 1;
-            playbackPosition = 0;
-            showImage = true;
-        }
-
     }
 
     @Override
@@ -62,36 +49,58 @@ public class DetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         fragmentDetailsBinding = FragmentDetailsBinding.inflate(inflater, container, false);
         initItem(imdbId);
-        playerView = fragmentDetailsBinding.videoView;
-
-        if(showImage) {
-            fragmentDetailsBinding.videoView.setVisibility(View.INVISIBLE);
-            fragmentDetailsBinding.posterImage.setVisibility(View.VISIBLE);
+        PlayerView playerView = fragmentDetailsBinding.videoView;
+        exoPlayerUtil = ExoPlayerUtil.getInstance();
+        exoPlayerUtil.setPlayerView(playerView);
+        if (savedInstanceState != null) {
+            imageVisibility = savedInstanceState.getBoolean("IMAGE_VISIBILITY");
         } else {
-            fragmentDetailsBinding.videoView.setVisibility(View.VISIBLE);
-            fragmentDetailsBinding.posterImage.setVisibility(View.INVISIBLE);
+            imageVisibility= true;
         }
-
+        //for landscape
+        if(!imageVisibility) {
+           fragmentDetailsBinding.posterImage.setVisibility(View.INVISIBLE);
+           fragmentDetailsBinding.videoView.setVisibility(View.VISIBLE);
+           exoPlayerUtil.play();
+        }
 
         fragmentDetailsBinding.videoViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(showImage) {
+                if(imageVisibility) {
                     fragmentDetailsBinding.posterImage.setVisibility(View.INVISIBLE);
                     fragmentDetailsBinding.videoView.setVisibility(View.VISIBLE);
-                    showImage = false;
-                    playWhenReady = true;
+                    imageVisibility = false;
+                    exoPlayerUtil.play();
                 } else {
-                    fragmentDetailsBinding.videoView.setVisibility(View.INVISIBLE);
                     fragmentDetailsBinding.posterImage.setVisibility(View.VISIBLE);
-                    showImage = true;
-                    playWhenReady = false;
+                    fragmentDetailsBinding.videoView.setVisibility(View.INVISIBLE);
+                    imageVisibility = true;
+                    exoPlayerUtil.pause();
                 }
             }
         });
 
+        ExoPlayerUtil.getPlayer().addListener(new Player.EventListener() {
+            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                if (playbackState == Player.STATE_ENDED) {
+                    fragmentDetailsBinding.posterImage.setVisibility(View.VISIBLE);
+                    playerView.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+
+
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+           // getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        }
+
         return fragmentDetailsBinding.getRoot();
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -104,6 +113,13 @@ public class DetailsFragment extends Fragment {
                     Navigation.findNavController(view).navigate(R.id.action_detailsFragment_to_descriptionFragment, bundle);
                 }
             });
+
+            if(savedInstanceState != null) {
+                long position = savedInstanceState.getLong("PLAYBACK_POSITION");
+                exoPlayerUtil.setPlaybackPosition(position);
+                Log.e(TAG, Long.valueOf(position).toString());
+            }
+
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)  {
             ((MainActivity)getActivity()).getSupportActionBar().hide();
         }
@@ -138,74 +154,49 @@ public class DetailsFragment extends Fragment {
         });
     }
 
+    private ExoPlayerUtil exoPlayerUtil;
 
-    private PlayerView playerView;
-    private SimpleExoPlayer player;
-    private static boolean playWhenReady;
-    private int currentWindow = 0;
-    private static long playbackPosition = 0;
 
 
     //PLAYER
 
-    public static void resetPosition() {
-        playbackPosition = 0;
-        count = 0;
-        showImage = true;
-        playWhenReady = false;
-    }
-
-
-    private void initializePlayer() {
-        player = new SimpleExoPlayer.Builder(getContext()).build();
-        playerView.setPlayer(player);
-        Uri uri = Uri.parse("https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8");
-        MediaSource mediaSource = buildMediaSource(uri);
-        player.setPlayWhenReady(playWhenReady);
-        player.seekTo(currentWindow, playbackPosition);
-        player.prepare(mediaSource, false, false);
-    }
-
-    private MediaSource buildMediaSource(Uri uri) {
-        // Create a data source factory.
-        DataSource.Factory dataSourceFactory =
-                new DefaultHttpDataSourceFactory(Util.getUserAgent(getContext(), "exoplayer-codelab"));
-        // Create a HLS media source pointing to a playlist uri.
-        return new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
-    }
 
     @Override
     public void onStart() {
         super.onStart();
-        initializePlayer();
+        exoPlayerUtil.initializePlayer();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (player == null) {
-            initializePlayer();
-        }
-    }
-
-
-    private void releasePlayer() {
-        if (player != null) {
-            playWhenReady = player.getPlayWhenReady();
-            playbackPosition = player.getCurrentPosition();
-            currentWindow = player.getCurrentWindowIndex();
-            player.release();
-            player = null;
-        }
-    }
 
 
     @Override
     public void onStop() {
         super.onStop();
-        releasePlayer();
+        exoPlayerUtil.releasePlayer();
+
     }
 
 
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong("PLAYBACK_POSITION", exoPlayerUtil.getPlaybackPosition());
+        outState.putBoolean("IMAGE_VISIBILITY", imageVisibility);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null) {
+            if(ExoPlayerUtil.getPlayer() != null) {
+                exoPlayerUtil.setPlaybackPosition(savedInstanceState.getLong("PLAYBACK_POSITION"));
+                if (savedInstanceState.getLong("PLAYBACK_POSITION") == 0) {
+                    imageVisibility = true;
+                }
+            }
+        } else {
+            exoPlayerUtil.reset();
+        }
+    }
 }
