@@ -1,10 +1,13 @@
-package com.hritsay.internsiphproject;
+package com.hritsay.internsiphproject.services;
 
+
+
+import io.reactivex.Observable;
 
 import com.hritsay.internsiphproject.models.FilmItem;
 import com.hritsay.internsiphproject.models.SearchModel;
 
-import retrofit2.Call;
+
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
@@ -13,9 +16,9 @@ public interface FilmServiceAPI {
     String SHORT_PARAMS = "&s=Dark";
 
     @GET(API_KEY + SHORT_PARAMS)
-    Call<SearchModel> getShortFilmsDescription();
+    Observable<SearchModel> getShortFilmsDescription();
 
     @GET(API_KEY)
-    Call<FilmItem> getLongFilmDescription(@Query("i") String imdbID);
+    Observable<FilmItem> getLongFilmDescription(@Query("i") String imdbID);
 
 }

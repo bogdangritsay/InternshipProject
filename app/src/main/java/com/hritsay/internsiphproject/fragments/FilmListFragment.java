@@ -1,6 +1,6 @@
 package com.hritsay.internsiphproject.fragments;
 
-import android.content.res.Configuration;
+
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,11 +17,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.hritsay.internsiphproject.ExoPlayerUtil;
-import com.hritsay.internsiphproject.FilmListViewModel;
-import com.hritsay.internsiphproject.databinding.FragmentDetailsBinding;
+import com.hritsay.internsiphproject.details.ExoPlayerUtil;
+import com.hritsay.internsiphproject.filmlist.FilmListViewModel;
+
 import com.hritsay.internsiphproject.models.FilmItem;
-import com.hritsay.internsiphproject.FilmListAdapter;
+import com.hritsay.internsiphproject.filmlist.FilmListAdapter;
 import com.hritsay.internsiphproject.databinding.FragmentMainBinding;
 
 import java.util.LinkedList;
@@ -40,11 +39,11 @@ public class FilmListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-
         fragmentMainBinding = FragmentMainBinding.inflate(getLayoutInflater());
 
         filmListViewModel = new ViewModelProvider(this).get(FilmListViewModel.class);
-        filmListViewModel.init();
+
+
 
         filmListViewModel.getFilmsLiveData().observe(this, filmsResponse -> {
             Log.i(TAG, "Observer running");
@@ -52,13 +51,16 @@ public class FilmListFragment extends Fragment {
             if (filmsArticles != null) {
                 itemList.addAll(filmsArticles);
             }
+            //adapter set data
             adapter.notifyDataSetChanged();
         });
 
-        filmListViewModel.getThrowableMutableLiveData().observe(this, throwable -> {
+            filmListViewModel.getThrowableMutableLiveData().observe(this, throwable -> {
                 Toast toast = Toast.makeText(getContext(), "Error! Message: " + throwable.getMessage(), Toast.LENGTH_LONG);
                 toast.show();
         });
+
+        filmListViewModel.loadFilms();
 
         addCustomBackPress();
     }
@@ -72,7 +74,6 @@ public class FilmListFragment extends Fragment {
         return fragmentMainBinding.getRoot();
     }
 
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -83,7 +84,8 @@ public class FilmListFragment extends Fragment {
         Log.i(TAG, "initRecycleView");
         RecyclerView recyclerView = fragmentMainBinding.recyclerView;
         if (adapter == null) {
-            adapter = new FilmListAdapter(getContext(), itemList);
+            adapter = new FilmListAdapter();
+            adapter.setmFilmList(itemList);
             recyclerView.setAdapter(adapter);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         }

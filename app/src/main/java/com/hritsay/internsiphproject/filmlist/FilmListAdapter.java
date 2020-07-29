@@ -1,30 +1,31 @@
-package com.hritsay.internsiphproject;
+package com.hritsay.internsiphproject.filmlist;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.navigation.NavController;
+
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.hritsay.internsiphproject.R;
 import com.hritsay.internsiphproject.databinding.FilmItemBinding;
 import com.hritsay.internsiphproject.models.FilmItem;
 
 
+import java.util.Collections;
 import java.util.List;
 
 public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmViewHolder> {
-    private LayoutInflater mInflater;
-    private List<FilmItem> mFilmList;
-    private Context context;
+    private static String IMDB_KEY = "imdbId";
+    private List<FilmItem> mFilmList = Collections.emptyList();
 
-    class FilmViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+    static class FilmViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private FilmItemBinding filmItemBinding;
         private String imdbID;
 
@@ -35,9 +36,8 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
         @Override
         public void onClick(View v) {
             Bundle bundle = new Bundle();
-            bundle.putString("imdbId", imdbID);
+            bundle.putString(IMDB_KEY, imdbID);
             Navigation.findNavController(v).navigate(R.id.action_mainFragment_to_detailsFragment, bundle);
-
         }
 
         public FilmViewHolder(FilmItemBinding itemBinding) {
@@ -47,26 +47,29 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
         }
 
     }
-
-    public FilmListAdapter(Context context, List<FilmItem> filmList) {
-        mInflater = LayoutInflater.from(context);
-        this.mFilmList = filmList;
+    /* delete*/
+    public FilmListAdapter() {
     }
 
     @NonNull
     @Override
     public FilmListAdapter.FilmViewHolder  onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        context = parent.getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         FilmItemBinding recyclerItemBinding = FilmItemBinding.inflate(inflater, parent, false);
         return new FilmViewHolder(recyclerItemBinding);
     }
 
+
+
     @Override
     public void onBindViewHolder(@NonNull final FilmListAdapter.FilmViewHolder holder, final int position) {
-        FilmItem filmItem = bindHolder(position);
+        bindHolder(holder, position);
+    }
+
+    private void bindHolder(@NonNull final FilmListAdapter.FilmViewHolder holder, final int position) {
+        FilmItem filmItem = mFilmList.get(position);
         holder.setImdbID(filmItem.getImdbId());
-        Glide.with(context)
+        Glide.with(holder.itemView.getContext())
                 .load(filmItem.getUrl())
                 .placeholder(R.drawable.film_placeholder_background)
                 .error(R.drawable.ic_baseline_error_outline_24)
@@ -74,11 +77,6 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
                 .into(holder.filmItemBinding.filmImage);
         holder.filmItemBinding.filmTitle.setText(filmItem.getTitle());
         holder.filmItemBinding.filmYear.setText(filmItem.getYear());
-
-    }
-
-    private FilmItem bindHolder(final int position) {
-        return mFilmList.get(position);
     }
 
 
@@ -87,6 +85,7 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
         return this.mFilmList.size();
     }
 
-
-
+    public void setmFilmList(List<FilmItem> mFilmList) {
+        this.mFilmList = mFilmList;
+    }
 }

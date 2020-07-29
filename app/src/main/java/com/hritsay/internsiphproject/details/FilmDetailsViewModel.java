@@ -1,4 +1,4 @@
-package com.hritsay.internsiphproject;
+package com.hritsay.internsiphproject.details;
 
 import android.util.Log;
 
@@ -6,23 +6,23 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.hritsay.internsiphproject.services.FilmsRepository;
 import com.hritsay.internsiphproject.models.FilmItem;
 
 
 public class FilmDetailsViewModel extends ViewModel {
-    private MutableLiveData<FilmItem> mutableLiveData;
-
     private final String TAG = getClass().getCanonicalName();
+    private MutableLiveData<FilmItem> mutableLiveData;
     private MutableLiveData<Throwable>  throwableMutableLiveData;
 
-    public void init(String imdbId) {
-        Log.i(TAG, "init()");
-        if (mutableLiveData != null) {
-            return;
-        }
-        FilmsRepository filmsRepository = FilmsRepository.getInstance();
+    public FilmDetailsViewModel() {
         mutableLiveData = new MutableLiveData<>();
         throwableMutableLiveData = new MutableLiveData<>();
+    }
+
+    public void getFilmById(String imdbId) {
+        Log.i(TAG, "getFIlmById(" + imdbId + ")");
+        FilmsRepository filmsRepository = FilmsRepository.getInstance();
         FilmDetailsListener listener = new FilmDetailsListener() {
             @Override
             public void onFilmLoaded(FilmItem filmItem) {

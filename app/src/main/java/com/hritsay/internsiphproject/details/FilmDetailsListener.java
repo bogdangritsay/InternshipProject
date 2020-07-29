@@ -1,4 +1,4 @@
-package com.hritsay.internsiphproject;
+package com.hritsay.internsiphproject.details;
 
 import com.hritsay.internsiphproject.models.FilmItem;
 
