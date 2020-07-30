@@ -1,9 +1,9 @@
 package com.hritsay.internsiphproject.details;
 
-import com.hritsay.internsiphproject.models.FilmItem;
+import com.hritsay.internsiphproject.models.FilmDetailsItem;
 
 public interface FilmDetailsListener {
-    void onFilmLoaded(FilmItem filmItem);
+    void onFilmLoaded(FilmDetailsItem filmDetailsItem);
 
     void onFilmLoadedFail(Throwable t);
 }

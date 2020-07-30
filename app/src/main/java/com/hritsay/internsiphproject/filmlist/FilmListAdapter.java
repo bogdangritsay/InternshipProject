@@ -14,7 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hritsay.internsiphproject.R;
 import com.hritsay.internsiphproject.databinding.FilmItemBinding;
-import com.hritsay.internsiphproject.models.FilmItem;
+import com.hritsay.internsiphproject.models.FilmDetailsItem;
 
 
 import java.util.Collections;
@@ -22,7 +22,7 @@ import java.util.List;
 
 public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmViewHolder> {
     private static String IMDB_KEY = "imdbId";
-    private List<FilmItem> mFilmList = Collections.emptyList();
+    private List<FilmDetailsItem> mFilmList = Collections.emptyList();
 
 
     static class FilmViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -67,16 +67,17 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
     }
 
     private void bindHolder(@NonNull final FilmListAdapter.FilmViewHolder holder, final int position) {
-        FilmItem filmItem = mFilmList.get(position);
-        holder.setImdbID(filmItem.getImdbId());
+        FilmDetailsItem filmDetailsItem = mFilmList.get(position);
+        holder.setImdbID(filmDetailsItem.getImdbId());
         Glide.with(holder.itemView.getContext())
-                .load(filmItem.getUrl())
+                .load(filmDetailsItem.getUrl())
                 .placeholder(R.drawable.film_placeholder_background)
                 .error(R.drawable.ic_baseline_error_outline_24)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(holder.filmItemBinding.filmImage);
-        holder.filmItemBinding.filmTitle.setText(filmItem.getTitle());
-        holder.filmItemBinding.filmYear.setText(filmItem.getYear());
+        holder.filmItemBinding.filmTitle.setText(filmDetailsItem.getTitle());
+        holder.filmItemBinding.filmYear.setText(filmDetailsItem.getYear());
+        holder.filmItemBinding.filmActors.setText(filmDetailsItem.getActors());
     }
 
 
@@ -85,7 +86,7 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
         return this.mFilmList.size();
     }
 
-    public void setmFilmList(List<FilmItem> mFilmList) {
+    public void setmFilmList(List<FilmDetailsItem> mFilmList) {
         this.mFilmList = mFilmList;
     }
 }

@@ -18,9 +18,10 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.hritsay.internsiphproject.details.ExoPlayerUtil;
+import com.hritsay.internsiphproject.details.FilmDetailsViewModel;
 import com.hritsay.internsiphproject.filmlist.FilmListViewModel;
 
-import com.hritsay.internsiphproject.models.FilmItem;
+import com.hritsay.internsiphproject.models.FilmDetailsItem;
 import com.hritsay.internsiphproject.filmlist.FilmListAdapter;
 import com.hritsay.internsiphproject.databinding.FragmentMainBinding;
 
@@ -30,9 +31,10 @@ import java.util.List;
 public class FilmListFragment extends Fragment {
     private FragmentMainBinding fragmentMainBinding;
     private FilmListAdapter adapter;
-    private List<FilmItem> itemList = new LinkedList<>();
+    private List<FilmDetailsItem> itemList = new LinkedList<>();
     private final String TAG = getClass().getCanonicalName();
     private FilmListViewModel filmListViewModel;
+    private FilmDetailsViewModel filmDetailsViewModel;
 
 
     @Override
@@ -42,25 +44,27 @@ public class FilmListFragment extends Fragment {
         fragmentMainBinding = FragmentMainBinding.inflate(getLayoutInflater());
 
         filmListViewModel = new ViewModelProvider(this).get(FilmListViewModel.class);
-
-
+        filmDetailsViewModel = new ViewModelProvider(this).get(FilmDetailsViewModel.class);
 
         filmListViewModel.getFilmsLiveData().observe(this, filmsResponse -> {
             Log.i(TAG, "Observer running");
-            List<FilmItem> filmsArticles = filmsResponse.getFilmItemList();
+            List<FilmDetailsItem> filmsArticles = filmsResponse.getFilmDetailsItemList();
             if (filmsArticles != null) {
                 itemList.addAll(filmsArticles);
             }
+
             //adapter set data
             adapter.notifyDataSetChanged();
         });
+
+
 
             filmListViewModel.getThrowableMutableLiveData().observe(this, throwable -> {
                 Toast toast = Toast.makeText(getContext(), "Error! Message: " + throwable.getMessage(), Toast.LENGTH_LONG);
                 toast.show();
         });
 
-        filmListViewModel.loadFilms();
+        filmListViewModel.initDataFilms();
 
         addCustomBackPress();
     }

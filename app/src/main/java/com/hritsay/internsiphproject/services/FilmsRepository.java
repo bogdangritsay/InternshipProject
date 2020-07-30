@@ -2,16 +2,19 @@ package com.hritsay.internsiphproject.services;
 
 import android.util.Log;
 
-import com.hritsay.internsiphproject.details.FilmDetailsListener;
-import com.hritsay.internsiphproject.filmlist.FilmsListener;
-import com.hritsay.internsiphproject.models.FilmItem;
+import com.hritsay.internsiphproject.models.FilmActors;
+import com.hritsay.internsiphproject.models.FilmDetailsItem;
 import com.hritsay.internsiphproject.models.SearchModel;
 
 
+import java.util.List;
+
 import io.reactivex.Observable;
-import io.reactivex.Observer;
+import io.reactivex.ObservableSource;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -33,60 +36,43 @@ public class FilmsRepository {
         filmServiceAPI = RetrofitService.getInstance().createFilmService();
     }
 
-    public void  loadFilms(FilmsListener filmsListener) {
-
-        Observable<SearchModel> searchModelObservable = filmServiceAPI.getShortFilmsDescription();
-
-        searchModelObservable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<SearchModel>() {
-                    SearchModel model = new SearchModel();
+    public Single<List<FilmDetailsItem>> loadFilms() {
+            return filmServiceAPI
+                .getShortFilmsDescription()
+                .map(SearchModel::getFilmDetailsItemList)
+                .flatMap(new Function<List<FilmDetailsItem>, ObservableSource<FilmDetailsItem>>() {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public ObservableSource<FilmDetailsItem> apply(List<FilmDetailsItem> films) throws Exception {
+                        return Observable.fromIterable(films);
                     }
-
+                })
+                .flatMap(new Function<FilmDetailsItem, ObservableSource<FilmActors>>() {
                     @Override
-                    public void onNext(SearchModel searchModel) {
-                        model = searchModel;
+                    public ObservableSource<FilmActors> apply(FilmDetailsItem filmDetailsItem) throws Exception {
+                        return filmsRepository.loadActorsByImdbId(filmDetailsItem.getImdbId());
                     }
-
+                }, new BiFunction<FilmDetailsItem, FilmActors, FilmDetailsItem>() {
                     @Override
-                    public void onError(Throwable e) {
-                        filmsListener.onFilmListLoadFail(e);
+                    public FilmDetailsItem apply(FilmDetailsItem filmDetailsItem, FilmActors filmActors) throws Exception {
+                        filmDetailsItem.setActors(filmActors.getActors());
+                        return filmDetailsItem;
                     }
-
-                    @Override
-                    public void onComplete() {
-                        filmsListener.onFilmListLoaded(model);
-                    }
-                });
+                }).toList();
     }
 
-    public void loadFilmByImdbId(FilmDetailsListener filmDetailsListener, String imdbId) {
+    public Observable<FilmDetailsItem> loadFilmByImdbId(String imdbId) {
         Log.d(TAG, "New request to API for film by imdbId");
-        Observable<FilmItem> searchModelObservable = filmServiceAPI.getLongFilmDescription(imdbId);
-        searchModelObservable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<FilmItem>() {
-                    FilmItem model;
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                    }
-
-                    @Override
-                    public void onNext(FilmItem filmItem) {
-                        model = filmItem;
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        filmDetailsListener.onFilmLoadedFail(e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        filmDetailsListener.onFilmLoaded(model);
-                    }
-                });
+        return filmServiceAPI.getLongFilmDescription(imdbId)
+                .subscribeOn(Schedulers.io()) //в каком потоке будет работать источник
+                .observeOn(AndroidSchedulers.mainThread());  // в каком потоке будем отображать результат
     }
+
+    public Observable<FilmActors> loadActorsByImdbId(String imdbId) {
+        Log.d(TAG, "New request to API for film by imdbId");
+        return filmServiceAPI.getFilmActors(imdbId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+
 }

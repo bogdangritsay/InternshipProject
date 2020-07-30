@@ -7,7 +7,7 @@ import java.util.List;
 
 
 
-public class FilmItem {
+public class FilmDetailsItem {
     @SerializedName("imdbID")
     private String imdbId;
     @SerializedName("Year")
@@ -27,9 +27,9 @@ public class FilmItem {
     @SerializedName("Plot")
     private String plot;
 
-    public FilmItem() {}
+    public FilmDetailsItem() {}
 
-    public FilmItem(String imdbId, String year, String title, String url, String duration, String actors, String genres, List<Rating> ratings, String plot) {
+    public FilmDetailsItem(String imdbId, String year, String title, String url, String duration, String actors, String genres, List<Rating> ratings, String plot) {
         this.imdbId = imdbId;
         this.year = year;
         this.title = title;

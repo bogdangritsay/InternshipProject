@@ -4,7 +4,8 @@ package com.hritsay.internsiphproject.services;
 
 import io.reactivex.Observable;
 
-import com.hritsay.internsiphproject.models.FilmItem;
+import com.hritsay.internsiphproject.models.FilmActors;
+import com.hritsay.internsiphproject.models.FilmDetailsItem;
 import com.hritsay.internsiphproject.models.SearchModel;
 
 
@@ -19,6 +20,11 @@ public interface FilmServiceAPI {
     Observable<SearchModel> getShortFilmsDescription();
 
     @GET(API_KEY)
-    Observable<FilmItem> getLongFilmDescription(@Query("i") String imdbID);
+    Observable<FilmDetailsItem> getLongFilmDescription(@Query("i") String imdbID);
+
+    @GET(API_KEY)
+    Observable<FilmActors> getFilmActors(@Query("i") String imdbID);
+
+
 
 }

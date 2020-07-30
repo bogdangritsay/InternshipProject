@@ -31,10 +31,10 @@
     <TextView
         android:id="@+id/film_year"
         android:layout_width="99dp"
-        android:layout_height="19dp"
-        android:layout_marginTop="4dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="@string/film_year"
-        android:textColor="#6C789A"
+        android:textColor="@color/colorTextListBlue"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="@+id/film_title"
         app:layout_constraintTop_toBottomOf="@+id/film_title" />
@@ -45,11 +45,26 @@
         android:layout_height="170dp"
         android:layout_margin="20dp"
         android:layout_marginStart="232dp"
-
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.725"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/film_actors"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:maxHeight="100dp"
+        android:textColor="@color/colorTextListBlue"
+        android:textSize="18sp"
+        android:text="Actors"
+        app:layout_constraintBottom_toBottomOf="@+id/film_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/film_year"
+        app:layout_constraintTop_toBottomOf="@+id/film_year"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
