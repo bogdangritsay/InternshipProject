@@ -13,6 +13,7 @@ import com.hritsay.internsiphproject.models.SearchModel;
 import java.util.List;
 
 import io.reactivex.Observer;
+import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -35,31 +36,25 @@ public class FilmListViewModel extends ViewModel {
         FilmsRepository filmsRepository = FilmsRepository.getInstance();
         filmsRepository
                 .loadFilms()
-                .toObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<FilmDetailsItem>>() {
-                    List<FilmDetailsItem> films;
+                .subscribe(new SingleObserver<List<FilmDetailsItem>>() {
+
                     @Override
                     public void onSubscribe(Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(List<FilmDetailsItem> filmDetailsItems) {
-                        films = filmDetailsItems;
+                    public void onSuccess(List<FilmDetailsItem> filmDetailsItems) {
+                        SearchModel model = new SearchModel();
+                        model.setFilmDetailsItemList(filmDetailsItems);
+                        mutableLiveData.setValue(model);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         throwableMutableLiveData.setValue(e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        SearchModel model = new SearchModel();
-                        model.setFilmDetailsItemList(films);
-                        mutableLiveData.setValue(model);
                     }
                 });
     }

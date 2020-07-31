@@ -49,11 +49,15 @@ public class FilmsRepository {
                 .flatMap(new Function<FilmDetailsItem, ObservableSource<FilmActors>>() {
                     @Override
                     public ObservableSource<FilmActors> apply(FilmDetailsItem filmDetailsItem) throws Exception {
-                        return filmsRepository.loadActorsByImdbId(filmDetailsItem.getImdbId());
+                        Log.e("THREAD TEST", Thread.currentThread().getName());
+                        return filmServiceAPI
+                                .getFilmActors(filmDetailsItem.getImdbId())
+                                .subscribeOn(Schedulers.io());
                     }
                 }, new BiFunction<FilmDetailsItem, FilmActors, FilmDetailsItem>() {
                     @Override
                     public FilmDetailsItem apply(FilmDetailsItem filmDetailsItem, FilmActors filmActors) throws Exception {
+                        Log.d(TAG, "Thread — " + Thread.currentThread().getName());
                         filmDetailsItem.setActors(filmActors.getActors());
                         return filmDetailsItem;
                     }
@@ -67,12 +71,6 @@ public class FilmsRepository {
                 .observeOn(AndroidSchedulers.mainThread());  // в каком потоке будем отображать результат
     }
 
-    public Observable<FilmActors> loadActorsByImdbId(String imdbId) {
-        Log.d(TAG, "New request to API for film by imdbId");
-        return filmServiceAPI.getFilmActors(imdbId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-    }
 
 
 }
