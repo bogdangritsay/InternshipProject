@@ -1,4 +1,4 @@
-package com.hritsay.internsiphproject;
+package com.hritsay.internsiphproject.filmlist;
 
 
 import com.hritsay.internsiphproject.models.SearchModel;

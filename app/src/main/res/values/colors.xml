@@ -10,4 +10,5 @@
     <color name="black">#000000</color>
     <color name="colorTextBlue">#9CB9C2FA</color>
     <color name="pinkButtonsText">#EC5A6B</color>
+    <color name="colorTextListBlue">#6C789A</color>
 </resources>
