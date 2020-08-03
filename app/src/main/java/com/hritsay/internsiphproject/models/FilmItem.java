@@ -7,29 +7,34 @@ import java.util.List;
 
 
 
-public class FilmDetailsItem {
+public class FilmItem {
     @SerializedName("imdbID")
     private String imdbId;
+
     @SerializedName("Year")
     private String year;
+
     @SerializedName("Title")
     private String title;
+
     @SerializedName("Poster")
     private String url;
+
     @SerializedName("Runtime")
     private String duration;
+
     @SerializedName("Actors")
     private String actors;
+
     @SerializedName("Genre")
     private String genres;
-    @SerializedName("Ratings")
-    private List<Rating> ratings;
+
     @SerializedName("Plot")
     private String plot;
 
-    public FilmDetailsItem() {}
+    public FilmItem() {}
 
-    public FilmDetailsItem(String imdbId, String year, String title, String url, String duration, String actors, String genres, List<Rating> ratings, String plot) {
+    public FilmItem(String imdbId, String year, String title, String url, String duration, String actors, String genres, String plot) {
         this.imdbId = imdbId;
         this.year = year;
         this.title = title;
@@ -37,7 +42,6 @@ public class FilmDetailsItem {
         this.duration = duration;
         this.actors = actors;
         this.genres = genres;
-        this.ratings = ratings;
         this.plot = plot;
     }
 
@@ -105,14 +109,6 @@ public class FilmDetailsItem {
         this.genres = genres;
     }
 
-    public List<Rating> getRatings() {
-        return ratings;
-    }
-
-    public void setRatings(List<Rating> ratings) {
-        this.ratings = ratings;
-    }
-
     @Override
     public String toString() {
         return "FilmItem{" +
@@ -123,7 +119,6 @@ public class FilmDetailsItem {
                 ", duration='" + duration + '\'' +
                 ", actors='" + actors + '\'' +
                 ", genres='" + genres + '\'' +
-                ", ratings=" + ratings +
                 '}';
     }
 }

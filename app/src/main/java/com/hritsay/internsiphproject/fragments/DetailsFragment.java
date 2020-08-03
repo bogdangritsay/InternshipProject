@@ -25,7 +25,7 @@ import com.hritsay.internsiphproject.details.FilmDetailsViewModel;
 import com.hritsay.internsiphproject.MainActivity;
 import com.hritsay.internsiphproject.R;
 import com.hritsay.internsiphproject.databinding.FragmentDetailsBinding;
-import com.hritsay.internsiphproject.models.FilmDetailsItem;
+import com.hritsay.internsiphproject.models.FilmItem;
 
 
 public class DetailsFragment extends Fragment {
@@ -36,7 +36,7 @@ public class DetailsFragment extends Fragment {
     private final static String IMDB_ID_KEY = "imdbId";
     private boolean posterVisibility;
     private String imdbId;
-    private FilmDetailsItem filmDetailsItem = new FilmDetailsItem();
+    private FilmItem filmItem = new FilmItem();
     private FragmentDetailsBinding fragmentDetailsBinding;
     private ExoPlayerUtil exoPlayerUtil;
 
@@ -110,7 +110,7 @@ public class DetailsFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     Bundle bundle = new Bundle();
-                    bundle.putString(DESCRIPTION_TAG, filmDetailsItem.getPlot());
+                    bundle.putString(DESCRIPTION_TAG, filmItem.getPlot());
                     Navigation.findNavController(view).navigate(R.id.action_detailsFragment_to_descriptionFragment, bundle);
                 }
             });
@@ -132,14 +132,14 @@ public class DetailsFragment extends Fragment {
         filmDetailsViewModel.getFilmLiveData().observe(getViewLifecycleOwner(), filmResponse -> {
             Log.i(TAG, "Observer running");
             if(filmResponse != null) {
-                filmDetailsItem = filmResponse;
-                fragmentDetailsBinding.filmTitle.setText(filmDetailsItem.getTitle());
-                fragmentDetailsBinding.actors.setText(filmDetailsItem.getActors());
-                fragmentDetailsBinding.duration.setText(filmDetailsItem.getDuration());
-                fragmentDetailsBinding.genres.setText(filmDetailsItem.getGenres());
-                fragmentDetailsBinding.year.setText(filmDetailsItem.getYear());
+                filmItem = filmResponse;
+                fragmentDetailsBinding.filmTitle.setText(filmItem.getTitle());
+                fragmentDetailsBinding.actors.setText(filmItem.getActors());
+                fragmentDetailsBinding.duration.setText(filmItem.getDuration());
+                fragmentDetailsBinding.genres.setText(filmItem.getGenres());
+                fragmentDetailsBinding.year.setText(filmItem.getYear());
                 Glide.with(getContext())
-                        .load(filmDetailsItem.getUrl())
+                        .load(filmItem.getUrl())
                         .placeholder(R.mipmap.film_placeholder)
                         .error(R.drawable.ic_baseline_error_outline_24)
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)

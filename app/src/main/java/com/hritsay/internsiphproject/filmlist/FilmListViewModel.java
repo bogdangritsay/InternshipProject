@@ -6,16 +6,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.hritsay.internsiphproject.models.FilmDetailsItem;
+import com.hritsay.internsiphproject.FilmConverter;
+import com.hritsay.internsiphproject.db.entities.Film;
+import com.hritsay.internsiphproject.models.FilmItem;
 import com.hritsay.internsiphproject.services.FilmsRepository;
 import com.hritsay.internsiphproject.models.SearchModel;
 
+import java.util.LinkedList;
 import java.util.List;
 
-import io.reactivex.Observer;
-import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -34,30 +36,28 @@ public class FilmListViewModel extends ViewModel {
     public void initDataFilms() {
         Log.i(TAG, "initDataFilms()");
         FilmsRepository filmsRepository = FilmsRepository.getInstance();
-        filmsRepository
+        Disposable d = filmsRepository
                 .loadFilms()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<List<FilmDetailsItem>>() {
-
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onSuccess(List<FilmDetailsItem> filmDetailsItems) {
-                        SearchModel model = new SearchModel();
-                        model.setFilmDetailsItemList(filmDetailsItems);
-                        mutableLiveData.setValue(model);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        throwableMutableLiveData.setValue(e);
-                    }
-                });
+                .subscribe(new Consumer<List<Film>>() {
+                               @Override
+                               public void accept(List<Film> films) throws Exception {
+                                   try {
+                                       List<FilmItem> filmItemList = new LinkedList<>();
+                                       for (int i = 0; i < films.size(); i++) {
+                                           filmItemList.add(FilmConverter.convert(films.get(i)));
+                                       }
+                                       SearchModel model = new SearchModel();
+                                       model.setFilmItemList(filmItemList);
+                                       mutableLiveData.setValue(model);
+                                   } catch (Throwable t) {
+                                       throwableMutableLiveData.setValue(t);
+                                   }
+                               }
+                           });
     }
+
 
     public LiveData<SearchModel> getFilmsLiveData() {
         return mutableLiveData;

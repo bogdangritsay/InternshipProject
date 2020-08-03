@@ -6,16 +6,19 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.hritsay.internsiphproject.FilmConverter;
+import com.hritsay.internsiphproject.db.entities.Film;
 import com.hritsay.internsiphproject.services.FilmsRepository;
-import com.hritsay.internsiphproject.models.FilmDetailsItem;
-
-import io.reactivex.Observer;
+import com.hritsay.internsiphproject.models.FilmItem;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class FilmDetailsViewModel extends ViewModel {
     private final String TAG = getClass().getCanonicalName();
-    private MutableLiveData<FilmDetailsItem> mutableLiveData;
+    private MutableLiveData<FilmItem> mutableLiveData;
     private MutableLiveData<Throwable>  throwableMutableLiveData;
 
     public FilmDetailsViewModel() {
@@ -26,32 +29,22 @@ public class FilmDetailsViewModel extends ViewModel {
     public void getFilmById(String imdbId) {
         Log.i(TAG, "getFIlmById(" + imdbId + ")");
         FilmsRepository filmsRepository = FilmsRepository.getInstance();
-        filmsRepository.loadFilmByImdbId(imdbId)
-
-                .subscribe(new Observer<FilmDetailsItem>() {
-                    FilmDetailsItem model;
+        Disposable d = filmsRepository.loadFilmByImdbId(imdbId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Film>() {
                     @Override
-                    public void onSubscribe(Disposable d) {
-                    }
-
-                    @Override
-                    public void onNext(FilmDetailsItem filmDetailsItem) {
-                        model = filmDetailsItem;
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        throwableMutableLiveData.setValue(e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        mutableLiveData.setValue(model);
+                    public void accept(Film film) throws Exception {
+                        try {
+                            mutableLiveData.setValue(FilmConverter.convert(film));
+                        } catch (Throwable t) {
+                            throwableMutableLiveData.setValue(t);
+                        }
                     }
                 });
     }
 
-    public LiveData<FilmDetailsItem> getFilmLiveData() {
+    public LiveData<FilmItem> getFilmLiveData() {
         return mutableLiveData;
     }
 

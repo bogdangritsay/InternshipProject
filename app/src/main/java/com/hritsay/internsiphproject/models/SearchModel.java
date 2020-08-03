@@ -6,7 +6,7 @@ import java.util.List;
 
 public class SearchModel {
     @SerializedName("Search")
-    private List<FilmDetailsItem> filmDetailsItemList;
+    private List<FilmItem> filmItemList;
     @SerializedName("totalResults")
     private int totalResults;
     @SerializedName("Response")
@@ -14,18 +14,18 @@ public class SearchModel {
 
     public SearchModel() {}
 
-    public SearchModel(List<FilmDetailsItem> filmDetailsItemList, int totalResults, boolean status) {
-        this.filmDetailsItemList = filmDetailsItemList;
+    public SearchModel(List<FilmItem> filmItemList, int totalResults, boolean status) {
+        this.filmItemList = filmItemList;
         this.totalResults = totalResults;
         this.status = status;
     }
 
-    public List<FilmDetailsItem> getFilmDetailsItemList() {
-        return filmDetailsItemList;
+    public List<FilmItem> getFilmItemList() {
+        return filmItemList;
     }
 
-    public void setFilmDetailsItemList(List<FilmDetailsItem> filmDetailsItemList) {
-        this.filmDetailsItemList = filmDetailsItemList;
+    public void setFilmItemList(List<FilmItem> filmItemList) {
+        this.filmItemList = filmItemList;
     }
 
     public int getTotalResults() {
