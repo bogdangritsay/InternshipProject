@@ -7,7 +7,9 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 
-
+/**
+ * Film entity
+ */
 @Entity(tableName = "films")
 public class Film {
 

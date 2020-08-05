@@ -12,7 +12,6 @@ import com.hritsay.internsiphproject.db.entities.Film;
 @Database(entities = {Film.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract FilmDAO filmDAO();
-
     public static AppDatabase db;
 
     public static AppDatabase getAppDatabase(Context context) {

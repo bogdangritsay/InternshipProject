@@ -16,15 +16,19 @@ import com.hritsay.internsiphproject.R;
 import com.hritsay.internsiphproject.databinding.FilmItemBinding;
 import com.hritsay.internsiphproject.models.FilmItem;
 
-
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Adapter for FilmList RecyclerView
+ */
 public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmViewHolder> {
     private static String IMDB_KEY = "imdbId";
     private List<FilmItem> mFilmList = Collections.emptyList();
 
-
+    /**
+     * ViewHolder inner class for Film item
+     */
     static class FilmViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private FilmItemBinding filmItemBinding;
         private String imdbID;
@@ -40,16 +44,21 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
             Navigation.findNavController(v).navigate(R.id.action_mainFragment_to_detailsFragment, bundle);
         }
 
+        /**
+         * Constructor for FilmViewHolder
+         * @param itemBinding item for holder
+         */
         public FilmViewHolder(FilmItemBinding itemBinding) {
             super(itemBinding.getRoot());
             filmItemBinding = itemBinding;
             itemView.setOnClickListener(this);
         }
-
     }
 
-    public FilmListAdapter() {
-    }
+    /**
+     * Default constructor for FilmListAdapter
+     */
+    public FilmListAdapter() {}
 
     @NonNull
     @Override
@@ -58,8 +67,6 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
         FilmItemBinding recyclerItemBinding = FilmItemBinding.inflate(inflater, parent, false);
         return new FilmViewHolder(recyclerItemBinding);
     }
-
-
 
     @Override
     public void onBindViewHolder(@NonNull final FilmListAdapter.FilmViewHolder holder, final int position) {
@@ -71,7 +78,7 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
         holder.setImdbID(filmItem.getImdbId());
         Glide.with(holder.itemView.getContext())
                 .load(filmItem.getUrl())
-                .placeholder(R.drawable.film_placeholder_background)
+                .placeholder(R.mipmap.poster_tmp)
                 .error(R.drawable.ic_baseline_error_outline_24)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(holder.filmItemBinding.filmImage);
@@ -86,6 +93,10 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
         return this.mFilmList.size();
     }
 
+    /**
+     * Setting FilmList in RecyclerView and notify that data set changed
+     * @param mFilmList FilmList for setting
+     */
     public void setmFilmList(List<FilmItem> mFilmList) {
         this.mFilmList = mFilmList;
         notifyDataSetChanged();

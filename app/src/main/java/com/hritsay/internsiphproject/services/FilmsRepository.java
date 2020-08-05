@@ -11,12 +11,12 @@ import com.hritsay.internsiphproject.db.entities.Film;
 import com.hritsay.internsiphproject.models.FilmItem;
 import com.hritsay.internsiphproject.models.SearchModel;
 
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
+import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiFunction;
@@ -25,13 +25,15 @@ import io.reactivex.schedulers.Schedulers;
 
 
 public class FilmsRepository {
-    private static final String APP_PREFERENCES = "update_settings";
-    private static LocalDateTime UPDATE_TIME;
-
-    private final String TAG = getClass().getCanonicalName();
+    private static final String TAG = FilmsRepository.class.getCanonicalName();
     private static FilmsRepository filmsRepository;
-    private FilmDAO filmDao = AppDatabase.db.filmDAO();
+    private FilmServiceAPI filmServiceAPI;
+    private FilmDAO filmDao;
 
+    /**
+     * Getting instance of film repository
+     * @return FilmRepository instance
+     */
     public static FilmsRepository getInstance() {
         if (filmsRepository == null) {
             filmsRepository = new FilmsRepository();
@@ -39,26 +41,34 @@ public class FilmsRepository {
         return filmsRepository;
     }
 
-    private FilmServiceAPI filmServiceAPI;
-
     private FilmsRepository() {
         filmServiceAPI = RetrofitService.getInstance().createFilmService();
-
+        filmDao = AppDatabase.db.filmDAO();
     }
 
+    /**
+     * Loading film list from database
+     * @return Flowable FilmList
+     */
     public Flowable<List<Film>> loadFilms() {
-        updateDatabase();
-        Log.e(TAG, "After update");
-                return filmDao
-                        .loadAllFilms();
+        return filmDao.loadAllFilms();
     }
 
+    /**
+     * Loading film details entity from database
+     * @param imdbId imdbId for the search
+     * @return Flowable film entity
+     */
     public Flowable<Film> loadFilmByImdbId(String imdbId) {
     return filmDao.loadFilmbyId(imdbId);
     }
 
-    public void updateDatabase() {
-        filmServiceAPI
+
+    /**
+     * Updating data in database
+     */
+    public Single<List<FilmItem>> updateDatabase() {
+        return filmServiceAPI
                 .getShortFilmsDescription()
                 .map(SearchModel::getFilmItemList)
                 .flatMap(new Function<List<FilmItem>, ObservableSource<FilmItem>>() {
@@ -77,40 +87,26 @@ public class FilmsRepository {
                     }
                 }, new BiFunction<FilmItem, FilmItem, FilmItem>() {
                     @Override
-                    public FilmItem apply(FilmItem filmItem, FilmItem filmActors) throws Exception {
+                    public FilmItem apply(FilmItem filmItem, FilmItem filmSource) throws Exception {
                         Thread.sleep(3000);
                         Log.d(TAG, "Thread — " + Thread.currentThread().getName());
-                        filmItem.setActors(filmActors.getActors());
-                        filmItem.setDuration(filmActors.getDuration());
-                        filmItem.setGenres(filmActors.getGenres());
+                        filmItem.setActors(filmSource.getActors());
+                        filmItem.setDuration(filmSource.getDuration());
+                        filmItem.setGenres(filmSource.getGenres());
+                        filmItem.setPlot(filmSource.getPlot());
                         return filmItem;
                     }
                 })
                 .toList()
-                .subscribeOn(Schedulers.io())
-                .subscribe(new SingleObserver<List<FilmItem>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
+                .subscribeOn(Schedulers.io());
+    }
 
-                    }
-
-                    @Override
-                    public void onSuccess(List<FilmItem> filmItems) {
-                        Log.e(TAG, "Before update");
-                        List<Film> films = new LinkedList<>();
-                        for (int i = 0; i < filmItems.size(); i++) {
-                            films.add(FilmConverter.convert(filmItems.get(i)));
-                        }
-                        filmDao.insertFilms(films);
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-                });
-
+    /**
+     * Wrapping method for inserting films to db
+     * @param films for insert
+     */
+    public void insertFilms(List<Film> films) {
+        filmDao.insertFilms(films);
     }
 
 }

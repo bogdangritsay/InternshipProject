@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -39,6 +38,7 @@ public class DetailsFragment extends Fragment {
     private FilmItem filmItem = new FilmItem();
     private FragmentDetailsBinding fragmentDetailsBinding;
     private ExoPlayerUtil exoPlayerUtil;
+    private PlayerView playerView;
 
 
     @Override
@@ -54,7 +54,7 @@ public class DetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         fragmentDetailsBinding = FragmentDetailsBinding.inflate(inflater, container, false);
         initItem(imdbId);
-        PlayerView playerView = fragmentDetailsBinding.videoView;
+        playerView = fragmentDetailsBinding.videoView;
         exoPlayerUtil = ExoPlayerUtil.getInstance();
         playerView.setPlayer(exoPlayerUtil.getPlayer());
         if (savedInstanceState != null) {
@@ -68,6 +68,27 @@ public class DetailsFragment extends Fragment {
            fragmentDetailsBinding.videoView.setVisibility(View.VISIBLE);
            exoPlayerUtil.play();
         }
+
+        return fragmentDetailsBinding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+            fragmentDetailsBinding.descriptionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(DESCRIPTION_TAG, filmItem.getPlot());
+                    Navigation.findNavController(view).navigate(R.id.action_detailsFragment_to_descriptionFragment, bundle);
+                }
+            });
+
+            if(savedInstanceState != null) {
+                long position = savedInstanceState.getLong(PLAYBACK_TAG);
+                exoPlayerUtil.setPlaybackPosition(position);
+                Log.e(TAG, Long.valueOf(position).toString());
+            }
 
         fragmentDetailsBinding.videoViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,31 +116,6 @@ public class DetailsFragment extends Fragment {
                 }
             }
         });
-
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        }
-
-        return fragmentDetailsBinding.getRoot();
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-            fragmentDetailsBinding.descriptionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(DESCRIPTION_TAG, filmItem.getPlot());
-                    Navigation.findNavController(view).navigate(R.id.action_detailsFragment_to_descriptionFragment, bundle);
-                }
-            });
-
-            if(savedInstanceState != null) {
-                long position = savedInstanceState.getLong(PLAYBACK_TAG);
-                exoPlayerUtil.setPlaybackPosition(position);
-                Log.e(TAG, Long.valueOf(position).toString());
-            }
 
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)  {
             ((MainActivity)getActivity()).getSupportActionBar().hide();

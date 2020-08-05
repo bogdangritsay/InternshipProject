@@ -12,13 +12,16 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 public class ExoPlayerUtil {
-    private final String TAG = getClass().getCanonicalName();
     private static ExoPlayerUtil exoPlayerUtil;
     private SimpleExoPlayer player;
     private int currentWindow = 0;
     private long playbackPosition = 0;
     private MediaSource mediaSource;
 
+    /**
+     * Getting instance of ExoPlayer
+     * @return instance of ExoPlayer
+     */
     public static ExoPlayerUtil getInstance() {
         if(exoPlayerUtil == null) {
             exoPlayerUtil = new ExoPlayerUtil();
@@ -28,6 +31,10 @@ public class ExoPlayerUtil {
 
     private ExoPlayerUtil() {}
 
+    /**
+     * Initializing of ExoPlayer
+     * @param context it's context for player
+     */
     public void initializePlayer(Context context) {
         player = new SimpleExoPlayer.Builder(context).build();
         Uri uri = Uri.parse("https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8");
@@ -41,6 +48,9 @@ public class ExoPlayerUtil {
         return new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
     }
 
+    /**
+     * Releasing for player
+     */
     public void releasePlayer() {
         if (player != null) {
             playbackPosition = player.getCurrentPosition();
@@ -48,31 +58,51 @@ public class ExoPlayerUtil {
         }
     }
 
+    /**
+     * Method for playing video in player
+     */
     public void play() {
         player.setPlayWhenReady(true);
         player.seekTo(currentWindow, playbackPosition);
         player.prepare(mediaSource, false, false);
     }
 
+    /**
+     * Method for pausing video in player
+     */
     public void pause() {
         player.setPlayWhenReady(false);
         player.stop();
     }
 
+    /**
+     * Method for reset playback position and player pausing
+     */
     public void reset() {
         pause();
         playbackPosition = 0;
     }
 
+    /**
+     * Getter for player
+     * @return player
+     */
     public SimpleExoPlayer getPlayer() {
         return player;
     }
 
-
+    /**
+     * Method for setting playback position
+     * @param playbackPosition position
+     */
     public void setPlaybackPosition(long playbackPosition) {
         this.playbackPosition = playbackPosition;
     }
 
+    /**
+     * Method for getting playback position
+     * @return position
+     */
     public long getPlaybackPosition() {
         return playbackPosition;
     }

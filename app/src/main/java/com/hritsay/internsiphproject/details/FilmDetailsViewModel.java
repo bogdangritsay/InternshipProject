@@ -17,15 +17,22 @@ import io.reactivex.schedulers.Schedulers;
 
 
 public class FilmDetailsViewModel extends ViewModel {
-    private final String TAG = getClass().getCanonicalName();
+    private static final String TAG = FilmDetailsViewModel.class.getCanonicalName();
     private MutableLiveData<FilmItem> mutableLiveData;
     private MutableLiveData<Throwable>  throwableMutableLiveData;
 
+    /**
+     * Default constructor for FilmDetailsViewModel
+     */
     public FilmDetailsViewModel() {
         mutableLiveData = new MutableLiveData<>();
         throwableMutableLiveData = new MutableLiveData<>();
     }
 
+    /**
+     * Getting film by imdbId
+     * @param imdbId id for the search
+     */
     public void getFilmById(String imdbId) {
         Log.i(TAG, "getFIlmById(" + imdbId + ")");
         FilmsRepository filmsRepository = FilmsRepository.getInstance();
@@ -34,7 +41,7 @@ public class FilmDetailsViewModel extends ViewModel {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Film>() {
                     @Override
-                    public void accept(Film film) throws Exception {
+                    public void accept(Film film) {
                         try {
                             mutableLiveData.setValue(FilmConverter.convert(film));
                         } catch (Throwable t) {
@@ -44,10 +51,18 @@ public class FilmDetailsViewModel extends ViewModel {
                 });
     }
 
+    /**
+     * Getter for FilmItem LiveData
+     * @return Livedata FilmItem
+     */
     public LiveData<FilmItem> getFilmLiveData() {
         return mutableLiveData;
     }
 
+    /**
+     * Getter for errors in LiveData
+     * @return Throwable LiveData
+     */
     public MutableLiveData<Throwable> getThrowableMutableLiveData() {
         return throwableMutableLiveData;
     }

@@ -30,9 +30,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FilmListFragment extends Fragment {
+    private static final String TAG = FilmListFragment.class.getCanonicalName();
     private FragmentMainBinding fragmentMainBinding;
     private FilmListAdapter adapter;
-    private final String TAG = getClass().getCanonicalName();
     private FilmListViewModel filmListViewModel;
 
     @Override
@@ -41,32 +41,26 @@ public class FilmListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         fragmentMainBinding = FragmentMainBinding.inflate(getLayoutInflater());
         filmListViewModel = new ViewModelProvider(this).get(FilmListViewModel.class);
-        filmListViewModel.getFilmsLiveData().observe(this, filmsResponse -> {
-            Log.i(TAG, "Observer running");
-            List<FilmItem> filmsArticles = filmsResponse.getFilmItemList();
-            adapter.setmFilmList(filmsArticles);
-        });
-            filmListViewModel.getThrowableMutableLiveData().observe(this, throwable -> {
-                Toast toast = Toast.makeText(getContext(), "Error! Message: " + throwable.getMessage(), Toast.LENGTH_LONG);
-                toast.show();
-        });
-        filmListViewModel.initDataFilms();
-        addCustomBackPress();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        filmListViewModel.getFilmsLiveData().observe(getViewLifecycleOwner(), filmsResponse -> {
+            Log.i(TAG, "Observer running");
+            List<FilmItem> filmsArticles = filmsResponse.getFilmItemList();
+            adapter.setmFilmList(filmsArticles);
+        });
+        filmListViewModel.getThrowableMutableLiveData().observe(getViewLifecycleOwner(), throwable -> {
+            Toast toast = Toast.makeText(getContext(), "Error! Message: " + throwable.getMessage(), Toast.LENGTH_LONG);
+            toast.show();
+        });
+        filmListViewModel.initDataFilms();
+        addCustomBackPress();
         ExoPlayerUtil.getInstance().reset();
         Log.i(TAG, "onCreateView");
         initRecyclerView();
         return fragmentMainBinding.getRoot();
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Log.i(TAG, "onViewCreated");
     }
 
     private void initRecyclerView() {
@@ -88,7 +82,7 @@ public class FilmListFragment extends Fragment {
         };
         requireActivity()
                 .getOnBackPressedDispatcher()
-                .addCallback(this, callback);
+                .addCallback(getViewLifecycleOwner(), callback);
     }
 
 
