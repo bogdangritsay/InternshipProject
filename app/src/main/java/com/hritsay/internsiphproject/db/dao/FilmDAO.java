@@ -23,8 +23,8 @@ public interface  FilmDAO {
      * Selecting all films from database
      * @return Flowable list of films
      */
-    @Query("SELECT * FROM films")
-    Flowable<List<Film>> loadAllFilms();
+    @Query("SELECT * FROM films WHERE title LIKE :keyword")
+    Flowable<List<Film>> loadAllFilms(String keyword);
 
     /**
      * Selecting film by imdbId

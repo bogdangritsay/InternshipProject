@@ -51,8 +51,8 @@ public class FilmsRepository {
      * Loading film list from database
      * @return Flowable FilmList
      */
-    public Flowable<List<Film>> loadFilms() {
-        return filmDao.loadAllFilms();
+    public Flowable<List<Film>> loadFilms(String keyword) {
+        return filmDao.loadAllFilms("%" + keyword + "%");
     }
 
     /**
@@ -68,10 +68,10 @@ public class FilmsRepository {
     /**
      * Updating data in database
      */
-    public Single<List<FilmItem>> updateDatabase() {
+    public Single<List<FilmItem>> updateDatabase(String keyword) {
 
         return filmServiceAPI
-                .getShortFilmsDescription()
+                .getShortFilmsDescription(keyword)
                 .map(SearchModel::getFilmItemList)
                 .flatMap(new Function<List<FilmItem>, ObservableSource<FilmItem>>() {
                     @Override

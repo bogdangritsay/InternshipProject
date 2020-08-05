@@ -9,6 +9,6 @@
     <color name="colorMainBack">#191919</color>
     <color name="black">#000000</color>
     <color name="colorTextBlue">#9CB9C2FA</color>
-    <color name="pinkButtonsText">#EC5A6B</color>
+    <color name="pinkButtonsText">#ff9900</color>
     <color name="colorTextListBlue">#6C789A</color>
 </resources>

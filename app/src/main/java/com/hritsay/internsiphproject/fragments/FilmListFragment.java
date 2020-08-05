@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.hritsay.internsiphproject.MainActivity;
 import com.hritsay.internsiphproject.details.ExoPlayerUtil;
 import com.hritsay.internsiphproject.filmlist.FilmListViewModel;
 
@@ -46,6 +47,8 @@ public class FilmListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        ((MainActivity)getActivity()).getSupportActionBar().show();
+
         filmListViewModel.getFilmsLiveData().observe(getViewLifecycleOwner(), filmsResponse -> {
             List<FilmItem> filmsArticles = filmsResponse.getFilmItemList();
             adapter.setmFilmList(filmsArticles);
@@ -59,12 +62,23 @@ public class FilmListFragment extends Fragment {
                 }
             }
         });
-
-        filmListViewModel.initDataFilms();
         addCustomBackPress();
         ExoPlayerUtil.getInstance().reset();
         initRecyclerView();
         return fragmentMainBinding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        fragmentMainBinding.searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String keyword = fragmentMainBinding.editKeyword.getText().toString();
+                filmListViewModel.initDataFilms(keyword);
+            }
+        });
     }
 
     private void initRecyclerView() {

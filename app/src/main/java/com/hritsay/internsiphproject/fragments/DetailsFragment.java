@@ -54,6 +54,7 @@ public class DetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         fragmentDetailsBinding = FragmentDetailsBinding.inflate(inflater, container, false);
+        ((MainActivity)getActivity()).getSupportActionBar().hide();
         initItem(imdbId);
         playerView = fragmentDetailsBinding.videoView;
         exoPlayerUtil = ExoPlayerUtil.getInstance();
@@ -117,11 +118,6 @@ public class DetailsFragment extends Fragment {
                 }
             }
         });
-
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)  {
-            ((MainActivity)getActivity()).getSupportActionBar().hide();
-        }
-
     }
 
     private void initItem(String imdbId) {

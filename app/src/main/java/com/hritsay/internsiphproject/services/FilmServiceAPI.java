@@ -16,14 +16,14 @@ import retrofit2.http.Query;
  */
 public interface FilmServiceAPI {
     String API_KEY = "?apikey=67c8e857";
-    String SHORT_PARAMS = "&s=Dark";
+
 
     /**
      * Getting short films description by key word
      * @return Observable SearchModel which includes list of films
      */
-    @GET(API_KEY + SHORT_PARAMS)
-    Observable<SearchModel> getShortFilmsDescription();
+    @GET(API_KEY)
+    Observable<SearchModel> getShortFilmsDescription(@Query("s") String keyword);
 
     /**
      * Getting full film description by imdbID

@@ -43,33 +43,10 @@ public class FilmListViewModel extends ViewModel {
     /**
      * Method for view model initialization
      */
-    public void initDataFilms() {
+    public void initDataFilms(String keyword) {
         Log.i(TAG, "initDataFilms()");
         FilmsRepository filmsRepository = FilmsRepository.getInstance();
-        Disposable d = filmsRepository
-                .loadFilms()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<List<Film>>() {
-                               @Override
-                               public void accept(List<Film> films) {
-                                   try {
-                                       List<FilmItem> filmItemList = new LinkedList<>();
-                                       for (int i = 0; i < films.size(); i++) {
-                                           filmItemList.add(FilmConverter.convert(films.get(i)));
-                                       }
-                                       SearchModel model = new SearchModel();
-                                       model.setFilmItemList(filmItemList);
-                                       mutableLiveData.setValue(model);
-
-                                   } catch (Throwable t) {
-                                       throwableMutableLiveData.setValue(t);
-                                   }
-                               }
-                           });
-        disposable.add(d);
-
-        filmsRepository.updateDatabase()
+        filmsRepository.updateDatabase(keyword)
                 .subscribe(new SingleObserver<List<FilmItem>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -92,6 +69,33 @@ public class FilmListViewModel extends ViewModel {
                         throwableMutableLiveData.postValue(e);
                     }
                 });
+
+        Disposable d = filmsRepository
+                .loadFilms(keyword)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<List<Film>>() {
+                               @Override
+                               public void accept(List<Film> films) {
+                                   try {
+                                       List<FilmItem> filmItemList = new LinkedList<>();
+                                       for (int i = 0; i < films.size(); i++) {
+                                           filmItemList.add(FilmConverter.convert(films.get(i)));
+                                       }
+                                       SearchModel model = new SearchModel();
+                                       model.setFilmItemList(filmItemList);
+                                       mutableLiveData.setValue(model);
+
+                                   } catch (Throwable t) {
+                                       throwableMutableLiveData.setValue(t);
+                                   }
+                               }
+                           });
+        disposable.add(d);
+
+
+
+
     }
 
     /**
