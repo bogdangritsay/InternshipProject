@@ -17,6 +17,7 @@ import java.util.List;
 
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -28,6 +29,7 @@ public class FilmListViewModel extends ViewModel {
     private static final String TAG = FilmListViewModel.class.getCanonicalName();
     private MutableLiveData<SearchModel> mutableLiveData;
     private MutableLiveData<Throwable>  throwableMutableLiveData;
+    private CompositeDisposable disposable;
 
     /**
      * Default constructor for ViewModel
@@ -35,6 +37,7 @@ public class FilmListViewModel extends ViewModel {
     public FilmListViewModel() {
         mutableLiveData = new MutableLiveData<>();
         throwableMutableLiveData = new MutableLiveData<>();
+        disposable = new CompositeDisposable();
     }
 
     /**
@@ -58,17 +61,19 @@ public class FilmListViewModel extends ViewModel {
                                        SearchModel model = new SearchModel();
                                        model.setFilmItemList(filmItemList);
                                        mutableLiveData.setValue(model);
+
                                    } catch (Throwable t) {
                                        throwableMutableLiveData.setValue(t);
                                    }
                                }
                            });
+        disposable.add(d);
 
         filmsRepository.updateDatabase()
                 .subscribe(new SingleObserver<List<FilmItem>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        disposable.add(d);
                     }
 
                     @Override
@@ -78,12 +83,13 @@ public class FilmListViewModel extends ViewModel {
                             films.add(FilmConverter.convert(filmItems.get(i)));
                         }
                         filmsRepository.insertFilms(films);
-
+                        throwableMutableLiveData.postValue(null);
+                        Log.i(TAG, "Database was been updated!");
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        throwableMutableLiveData.setValue(e);
+                        throwableMutableLiveData.postValue(e);
                     }
                 });
     }
@@ -102,5 +108,10 @@ public class FilmListViewModel extends ViewModel {
      */
     public MutableLiveData<Throwable> getThrowableMutableLiveData() {
         return throwableMutableLiveData;
+    }
+
+    public void disposeAll() {
+        if (disposable != null && !disposable.isDisposed())
+        disposable.dispose();
     }
 }

@@ -18,6 +18,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
@@ -68,27 +69,26 @@ public class FilmsRepository {
      * Updating data in database
      */
     public Single<List<FilmItem>> updateDatabase() {
+
         return filmServiceAPI
                 .getShortFilmsDescription()
                 .map(SearchModel::getFilmItemList)
                 .flatMap(new Function<List<FilmItem>, ObservableSource<FilmItem>>() {
                     @Override
-                    public ObservableSource<FilmItem> apply(List<FilmItem> films) throws Exception {
+                    public ObservableSource<FilmItem> apply(List<FilmItem> films) {
                         return Observable.fromIterable(films);
                     }
                 })
                 .flatMap(new Function<FilmItem, ObservableSource<FilmItem>>() {
                     @Override
-                    public ObservableSource<FilmItem> apply(FilmItem filmItem) throws Exception {
+                    public ObservableSource<FilmItem> apply(FilmItem filmItem) {
                         Log.e("THREAD TEST", Thread.currentThread().getName());
                         return filmServiceAPI
-                                .getLongFilmDescription(filmItem.getImdbId())
-                                .subscribeOn(Schedulers.io());
+                                .getLongFilmDescription(filmItem.getImdbId());
                     }
                 }, new BiFunction<FilmItem, FilmItem, FilmItem>() {
                     @Override
-                    public FilmItem apply(FilmItem filmItem, FilmItem filmSource) throws Exception {
-                        Thread.sleep(3000);
+                    public FilmItem apply(FilmItem filmItem, FilmItem filmSource) {
                         Log.d(TAG, "Thread — " + Thread.currentThread().getName());
                         filmItem.setActors(filmSource.getActors());
                         filmItem.setDuration(filmSource.getDuration());

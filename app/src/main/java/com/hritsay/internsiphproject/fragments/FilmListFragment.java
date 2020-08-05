@@ -7,6 +7,8 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.hritsay.internsiphproject.details.ExoPlayerUtil;
-import com.hritsay.internsiphproject.details.FilmDetailsViewModel;
 import com.hritsay.internsiphproject.filmlist.FilmListViewModel;
 
 import com.hritsay.internsiphproject.models.FilmItem;
@@ -26,7 +27,6 @@ import com.hritsay.internsiphproject.filmlist.FilmListAdapter;
 import com.hritsay.internsiphproject.databinding.FragmentMainBinding;
 
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 public class FilmListFragment extends Fragment {
@@ -47,24 +47,27 @@ public class FilmListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         filmListViewModel.getFilmsLiveData().observe(getViewLifecycleOwner(), filmsResponse -> {
-            Log.i(TAG, "Observer running");
             List<FilmItem> filmsArticles = filmsResponse.getFilmItemList();
             adapter.setmFilmList(filmsArticles);
         });
-        filmListViewModel.getThrowableMutableLiveData().observe(getViewLifecycleOwner(), throwable -> {
-            Toast toast = Toast.makeText(getContext(), "Error! Message: " + throwable.getMessage(), Toast.LENGTH_LONG);
-            toast.show();
+        filmListViewModel.getThrowableMutableLiveData().observe(getViewLifecycleOwner(), new Observer<Throwable>() {
+            @Override
+            public void onChanged(Throwable throwable) {
+                if(throwable != null) {
+                    Toast toast = Toast.makeText(getContext(), "Error! Message: " + throwable.getMessage(), Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            }
         });
+
         filmListViewModel.initDataFilms();
         addCustomBackPress();
         ExoPlayerUtil.getInstance().reset();
-        Log.i(TAG, "onCreateView");
         initRecyclerView();
         return fragmentMainBinding.getRoot();
     }
 
     private void initRecyclerView() {
-        Log.i(TAG, "initRecycleView");
         RecyclerView recyclerView = fragmentMainBinding.recyclerView;
         if (adapter == null) {
             adapter = new FilmListAdapter();
@@ -85,5 +88,9 @@ public class FilmListFragment extends Fragment {
                 .addCallback(getViewLifecycleOwner(), callback);
     }
 
-
+    @Override
+    public void onDestroy() {
+        filmListViewModel.disposeAll();
+        super.onDestroy();
+    }
 }

@@ -20,6 +20,7 @@ public class FilmDetailsViewModel extends ViewModel {
     private static final String TAG = FilmDetailsViewModel.class.getCanonicalName();
     private MutableLiveData<FilmItem> mutableLiveData;
     private MutableLiveData<Throwable>  throwableMutableLiveData;
+    private Disposable disposable;
 
     /**
      * Default constructor for FilmDetailsViewModel
@@ -49,6 +50,7 @@ public class FilmDetailsViewModel extends ViewModel {
                         }
                     }
                 });
+        disposable = d;
     }
 
     /**
@@ -65,5 +67,9 @@ public class FilmDetailsViewModel extends ViewModel {
      */
     public MutableLiveData<Throwable> getThrowableMutableLiveData() {
         return throwableMutableLiveData;
+    }
+
+    public void disposeAll() {
+        disposable.dispose();
     }
 }

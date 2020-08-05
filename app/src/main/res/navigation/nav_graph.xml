@@ -8,7 +8,7 @@
         android:id="@+id/mainFragment"
         android:name="com.hritsay.internsiphproject.fragments.FilmListFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" >
+        tools:layout="@layout/fragment_main">
         <action
             android:id="@+id/action_mainFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />
@@ -22,7 +22,7 @@
         android:id="@+id/detailsFragment"
         android:name="com.hritsay.internsiphproject.fragments.DetailsFragment"
         android:label="fragment_details"
-        tools:layout="@layout/fragment_details" >
+        tools:layout="@layout/fragment_details">
         <action
             android:id="@+id/action_detailsFragment_to_descriptionFragment"
             app:destination="@id/descriptionFragment" />
@@ -34,4 +34,24 @@
         android:id="@+id/playerFragment"
         android:name="com.hritsay.internsiphproject.fragments.PlayerFragment"
         android:label="PlayerFragment" />
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="com.hritsay.internsiphproject.FirstFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_first">
+
+        <action
+            android:id="@+id/action_FirstFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/SecondFragment"
+        android:name="com.hritsay.internsiphproject.SecondFragment"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/fragment_second">
+
+        <action
+            android:id="@+id/action_SecondFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
 </navigation>

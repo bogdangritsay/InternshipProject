@@ -34,6 +34,7 @@ public class DetailsFragment extends Fragment {
     private final static String DESCRIPTION_TAG = "filmDescription";
     private final static String IMDB_ID_KEY = "imdbId";
     private boolean posterVisibility;
+    private FilmDetailsViewModel filmDetailsViewModel;
     private String imdbId;
     private FilmItem filmItem = new FilmItem();
     private FragmentDetailsBinding fragmentDetailsBinding;
@@ -124,7 +125,7 @@ public class DetailsFragment extends Fragment {
     }
 
     private void initItem(String imdbId) {
-        FilmDetailsViewModel filmDetailsViewModel = new ViewModelProvider(this).get(FilmDetailsViewModel.class);
+        filmDetailsViewModel = new ViewModelProvider(this).get(FilmDetailsViewModel.class);
         filmDetailsViewModel.getFilmLiveData().observe(getViewLifecycleOwner(), filmResponse -> {
             Log.i(TAG, "Observer running");
             if(filmResponse != null) {
@@ -174,5 +175,11 @@ public class DetailsFragment extends Fragment {
         } else {
             exoPlayerUtil.reset();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        filmDetailsViewModel.disposeAll();
+        super.onDestroy();
     }
 }

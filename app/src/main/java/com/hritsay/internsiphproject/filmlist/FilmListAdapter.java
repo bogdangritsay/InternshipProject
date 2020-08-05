@@ -17,6 +17,7 @@ import com.hritsay.internsiphproject.databinding.FilmItemBinding;
 import com.hritsay.internsiphproject.models.FilmItem;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -98,6 +99,14 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
      * @param mFilmList FilmList for setting
      */
     public void setmFilmList(List<FilmItem> mFilmList) {
+        Collections.sort(mFilmList, new Comparator<FilmItem>() {
+            @Override
+            public int compare(FilmItem filmItem, FilmItem t1) {
+                return filmItem.getTitle().compareTo(t1.getTitle());
+            }
+        });
+
+
         this.mFilmList = mFilmList;
         notifyDataSetChanged();
     }

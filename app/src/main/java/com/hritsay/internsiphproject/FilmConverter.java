@@ -9,7 +9,6 @@ import com.hritsay.internsiphproject.models.FilmItem;
  */
 
 public class FilmConverter {
-
     /**
      * Convert Film entity to FilmItem model
      * @param value Film entity
