@@ -143,20 +143,18 @@
 
     <Button
         android:id="@+id/description_button"
-        android:layout_width="289dp"
+        android:layout_width="0dp"
         android:layout_height="39dp"
-        android:layout_marginStart="128dp"
-        android:background="@android:color/transparent"
+        android:layout_marginBottom="20dp"
+        android:background="@color/pinkButtonsText"
         android:foregroundTint="#FFFFFF"
         android:text="@string/description_button_text"
-        android:textColor="@color/pinkButtonsText"
-        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:textSize="22sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.145"
-        app:layout_constraintStart_toEndOf="@+id/poster_image"
-        app:layout_constraintTop_toBottomOf="@+id/actors"
-        app:layout_constraintVertical_bias="0.22" />
+        app:layout_constraintStart_toEndOf="@+id/poster_image" />
 
     <Button
         android:id="@+id/video_view_button"
@@ -165,21 +163,23 @@
         android:background="@drawable/round_button"
         android:foreground="@drawable/ic_baseline_play_arrow_14"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/poster_image"
-        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintEnd_toStartOf="@+id/description_button"
         app:layout_constraintStart_toStartOf="@+id/poster_image"
         app:layout_constraintTop_toTopOf="@+id/poster_image"
         app:layout_constraintVertical_bias="0.954" />
+
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/video_view"
         android:layout_width="match_parent"
-        app:resize_mode="fill"
         android:layout_height="match_parent"
         android:visibility="invisible"
-        app:use_controller="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"> </com.google.android.exoplayer2.ui.PlayerView>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:resize_mode="fill"
+        app:use_controller="false"></com.google.android.exoplayer2.ui.PlayerView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

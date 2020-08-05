@@ -1,76 +1,112 @@
 package com.hritsay.internsiphproject.services;
 
+
 import android.util.Log;
 
-import com.hritsay.internsiphproject.models.FilmActors;
-import com.hritsay.internsiphproject.models.FilmDetailsItem;
+
+import com.hritsay.internsiphproject.FilmConverter;
+import com.hritsay.internsiphproject.db.AppDatabase;
+import com.hritsay.internsiphproject.db.dao.FilmDAO;
+import com.hritsay.internsiphproject.db.entities.Film;
+import com.hritsay.internsiphproject.models.FilmItem;
 import com.hritsay.internsiphproject.models.SearchModel;
 
-
+import java.util.LinkedList;
 import java.util.List;
-
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.SingleObserver;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 
 public class FilmsRepository {
-    private final String TAG = getClass().getCanonicalName();
+    private static final String TAG = FilmsRepository.class.getCanonicalName();
     private static FilmsRepository filmsRepository;
+    private FilmServiceAPI filmServiceAPI;
+    private FilmDAO filmDao;
 
-
-    public static FilmsRepository getInstance(){
+    /**
+     * Getting instance of film repository
+     * @return FilmRepository instance
+     */
+    public static FilmsRepository getInstance() {
         if (filmsRepository == null) {
             filmsRepository = new FilmsRepository();
         }
         return filmsRepository;
     }
 
-    private FilmServiceAPI filmServiceAPI;
-
     private FilmsRepository() {
         filmServiceAPI = RetrofitService.getInstance().createFilmService();
+        filmDao = AppDatabase.db.filmDAO();
     }
 
-    public Single<List<FilmDetailsItem>> loadFilms() {
-            return filmServiceAPI
+    /**
+     * Loading film list from database
+     * @return Flowable FilmList
+     */
+    public Flowable<List<Film>> loadFilms() {
+        return filmDao.loadAllFilms();
+    }
+
+    /**
+     * Loading film details entity from database
+     * @param imdbId imdbId for the search
+     * @return Flowable film entity
+     */
+    public Flowable<Film> loadFilmByImdbId(String imdbId) {
+    return filmDao.loadFilmbyId(imdbId);
+    }
+
+
+    /**
+     * Updating data in database
+     */
+    public Single<List<FilmItem>> updateDatabase() {
+        return filmServiceAPI
                 .getShortFilmsDescription()
-                .map(SearchModel::getFilmDetailsItemList)
-                .flatMap(new Function<List<FilmDetailsItem>, ObservableSource<FilmDetailsItem>>() {
+                .map(SearchModel::getFilmItemList)
+                .flatMap(new Function<List<FilmItem>, ObservableSource<FilmItem>>() {
                     @Override
-                    public ObservableSource<FilmDetailsItem> apply(List<FilmDetailsItem> films) throws Exception {
+                    public ObservableSource<FilmItem> apply(List<FilmItem> films) throws Exception {
                         return Observable.fromIterable(films);
                     }
                 })
-                .flatMap(new Function<FilmDetailsItem, ObservableSource<FilmActors>>() {
+                .flatMap(new Function<FilmItem, ObservableSource<FilmItem>>() {
                     @Override
-                    public ObservableSource<FilmActors> apply(FilmDetailsItem filmDetailsItem) throws Exception {
+                    public ObservableSource<FilmItem> apply(FilmItem filmItem) throws Exception {
                         Log.e("THREAD TEST", Thread.currentThread().getName());
                         return filmServiceAPI
-                                .getFilmActors(filmDetailsItem.getImdbId())
+                                .getLongFilmDescription(filmItem.getImdbId())
                                 .subscribeOn(Schedulers.io());
                     }
-                }, new BiFunction<FilmDetailsItem, FilmActors, FilmDetailsItem>() {
+                }, new BiFunction<FilmItem, FilmItem, FilmItem>() {
                     @Override
-                    public FilmDetailsItem apply(FilmDetailsItem filmDetailsItem, FilmActors filmActors) throws Exception {
+                    public FilmItem apply(FilmItem filmItem, FilmItem filmSource) throws Exception {
+                        Thread.sleep(3000);
                         Log.d(TAG, "Thread — " + Thread.currentThread().getName());
-                        filmDetailsItem.setActors(filmActors.getActors());
-                        return filmDetailsItem;
+                        filmItem.setActors(filmSource.getActors());
+                        filmItem.setDuration(filmSource.getDuration());
+                        filmItem.setGenres(filmSource.getGenres());
+                        filmItem.setPlot(filmSource.getPlot());
+                        return filmItem;
                     }
-                }).toList();
+                })
+                .toList()
+                .subscribeOn(Schedulers.io());
     }
 
-    public Observable<FilmDetailsItem> loadFilmByImdbId(String imdbId) {
-        Log.d(TAG, "New request to API for film by imdbId");
-        return filmServiceAPI.getLongFilmDescription(imdbId)
-                .subscribeOn(Schedulers.io()) //в каком потоке будет работать источник
-                .observeOn(AndroidSchedulers.mainThread());  // в каком потоке будем отображать результат
+    /**
+     * Wrapping method for inserting films to db
+     * @param films for insert
+     */
+    public void insertFilms(List<Film> films) {
+        filmDao.insertFilms(films);
     }
-
-
 
 }

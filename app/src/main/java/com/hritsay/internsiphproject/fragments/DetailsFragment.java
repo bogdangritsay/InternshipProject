@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -25,7 +24,7 @@ import com.hritsay.internsiphproject.details.FilmDetailsViewModel;
 import com.hritsay.internsiphproject.MainActivity;
 import com.hritsay.internsiphproject.R;
 import com.hritsay.internsiphproject.databinding.FragmentDetailsBinding;
-import com.hritsay.internsiphproject.models.FilmDetailsItem;
+import com.hritsay.internsiphproject.models.FilmItem;
 
 
 public class DetailsFragment extends Fragment {
@@ -36,9 +35,10 @@ public class DetailsFragment extends Fragment {
     private final static String IMDB_ID_KEY = "imdbId";
     private boolean posterVisibility;
     private String imdbId;
-    private FilmDetailsItem filmDetailsItem = new FilmDetailsItem();
+    private FilmItem filmItem = new FilmItem();
     private FragmentDetailsBinding fragmentDetailsBinding;
     private ExoPlayerUtil exoPlayerUtil;
+    private PlayerView playerView;
 
 
     @Override
@@ -54,7 +54,7 @@ public class DetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         fragmentDetailsBinding = FragmentDetailsBinding.inflate(inflater, container, false);
         initItem(imdbId);
-        PlayerView playerView = fragmentDetailsBinding.videoView;
+        playerView = fragmentDetailsBinding.videoView;
         exoPlayerUtil = ExoPlayerUtil.getInstance();
         playerView.setPlayer(exoPlayerUtil.getPlayer());
         if (savedInstanceState != null) {
@@ -68,6 +68,27 @@ public class DetailsFragment extends Fragment {
            fragmentDetailsBinding.videoView.setVisibility(View.VISIBLE);
            exoPlayerUtil.play();
         }
+
+        return fragmentDetailsBinding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+            fragmentDetailsBinding.descriptionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(DESCRIPTION_TAG, filmItem.getPlot());
+                    Navigation.findNavController(view).navigate(R.id.action_detailsFragment_to_descriptionFragment, bundle);
+                }
+            });
+
+            if(savedInstanceState != null) {
+                long position = savedInstanceState.getLong(PLAYBACK_TAG);
+                exoPlayerUtil.setPlaybackPosition(position);
+                Log.e(TAG, Long.valueOf(position).toString());
+            }
 
         fragmentDetailsBinding.videoViewButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,31 +117,6 @@ public class DetailsFragment extends Fragment {
             }
         });
 
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        }
-
-        return fragmentDetailsBinding.getRoot();
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-            fragmentDetailsBinding.descriptionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString(DESCRIPTION_TAG, filmDetailsItem.getPlot());
-                    Navigation.findNavController(view).navigate(R.id.action_detailsFragment_to_descriptionFragment, bundle);
-                }
-            });
-
-            if(savedInstanceState != null) {
-                long position = savedInstanceState.getLong(PLAYBACK_TAG);
-                exoPlayerUtil.setPlaybackPosition(position);
-                Log.e(TAG, Long.valueOf(position).toString());
-            }
-
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)  {
             ((MainActivity)getActivity()).getSupportActionBar().hide();
         }
@@ -132,14 +128,14 @@ public class DetailsFragment extends Fragment {
         filmDetailsViewModel.getFilmLiveData().observe(getViewLifecycleOwner(), filmResponse -> {
             Log.i(TAG, "Observer running");
             if(filmResponse != null) {
-                filmDetailsItem = filmResponse;
-                fragmentDetailsBinding.filmTitle.setText(filmDetailsItem.getTitle());
-                fragmentDetailsBinding.actors.setText(filmDetailsItem.getActors());
-                fragmentDetailsBinding.duration.setText(filmDetailsItem.getDuration());
-                fragmentDetailsBinding.genres.setText(filmDetailsItem.getGenres());
-                fragmentDetailsBinding.year.setText(filmDetailsItem.getYear());
+                filmItem = filmResponse;
+                fragmentDetailsBinding.filmTitle.setText(filmItem.getTitle());
+                fragmentDetailsBinding.actors.setText(filmItem.getActors());
+                fragmentDetailsBinding.duration.setText(filmItem.getDuration());
+                fragmentDetailsBinding.genres.setText(filmItem.getGenres());
+                fragmentDetailsBinding.year.setText(filmItem.getYear());
                 Glide.with(getContext())
-                        .load(filmDetailsItem.getUrl())
+                        .load(filmItem.getUrl())
                         .placeholder(R.mipmap.film_placeholder)
                         .error(R.drawable.ic_baseline_error_outline_24)
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
