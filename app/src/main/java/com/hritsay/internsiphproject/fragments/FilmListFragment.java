@@ -76,7 +76,8 @@ public class FilmListFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String keyword = fragmentMainBinding.editKeyword.getText().toString();
-                filmListViewModel.initDataFilms(keyword);
+                if(keyword.isEmpty()) return;
+                else filmListViewModel.initDataFilms(keyword);
             }
         });
     }
@@ -100,11 +101,5 @@ public class FilmListFragment extends Fragment {
         requireActivity()
                 .getOnBackPressedDispatcher()
                 .addCallback(getViewLifecycleOwner(), callback);
-    }
-
-    @Override
-    public void onDestroy() {
-        filmListViewModel.disposeAll();
-        super.onDestroy();
     }
 }

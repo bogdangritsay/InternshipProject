@@ -56,7 +56,7 @@ public class FilmsRepository {
     }
 
     /**
-     * Loading film details entity from database
+     * Loading film details entity fro
      * @param imdbId imdbId for the search
      * @return Flowable film entity
      */

@@ -105,9 +105,11 @@ public class FilmListAdapter extends RecyclerView.Adapter<FilmListAdapter.FilmVi
                 return filmItem.getTitle().compareTo(t1.getTitle());
             }
         });
-
-
         this.mFilmList = mFilmList;
         notifyDataSetChanged();
+    }
+
+    public List<FilmItem> getmFilmList() {
+        return mFilmList;
     }
 }

@@ -89,7 +89,6 @@ public class DetailsFragment extends Fragment {
             if(savedInstanceState != null) {
                 long position = savedInstanceState.getLong(PLAYBACK_TAG);
                 exoPlayerUtil.setPlaybackPosition(position);
-                Log.e(TAG, Long.valueOf(position).toString());
             }
 
         fragmentDetailsBinding.videoViewButton.setOnClickListener(new View.OnClickListener() {

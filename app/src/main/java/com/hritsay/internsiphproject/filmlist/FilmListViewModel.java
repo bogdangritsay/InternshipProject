@@ -29,15 +29,14 @@ public class FilmListViewModel extends ViewModel {
     private static final String TAG = FilmListViewModel.class.getCanonicalName();
     private MutableLiveData<SearchModel> mutableLiveData;
     private MutableLiveData<Throwable>  throwableMutableLiveData;
-    private CompositeDisposable disposable;
-
+    private Disposable dbDisp;
+    private Disposable apiDisp;
     /**
      * Default constructor for ViewModel
      */
     public FilmListViewModel() {
         mutableLiveData = new MutableLiveData<>();
         throwableMutableLiveData = new MutableLiveData<>();
-        disposable = new CompositeDisposable();
     }
 
     /**
@@ -46,11 +45,14 @@ public class FilmListViewModel extends ViewModel {
     public void initDataFilms(String keyword) {
         Log.i(TAG, "initDataFilms()");
         FilmsRepository filmsRepository = FilmsRepository.getInstance();
+        if (apiDisp != null && !apiDisp.isDisposed()) {
+            apiDisp.dispose();
+        }
         filmsRepository.updateDatabase(keyword)
                 .subscribe(new SingleObserver<List<FilmItem>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        disposable.add(d);
+                        apiDisp = d;
                     }
 
                     @Override
@@ -70,7 +72,10 @@ public class FilmListViewModel extends ViewModel {
                     }
                 });
 
-        Disposable d = filmsRepository
+        if (dbDisp != null && !dbDisp.isDisposed()) {
+            dbDisp.dispose();
+        }
+        dbDisp =  filmsRepository
                 .loadFilms(keyword)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -91,11 +96,7 @@ public class FilmListViewModel extends ViewModel {
                                    }
                                }
                            });
-        disposable.add(d);
-
-
-
-
+        //disposable.add(d);
     }
 
     /**
@@ -114,8 +115,4 @@ public class FilmListViewModel extends ViewModel {
         return throwableMutableLiveData;
     }
 
-    public void disposeAll() {
-        if (disposable != null && !disposable.isDisposed())
-        disposable.dispose();
-    }
 }
